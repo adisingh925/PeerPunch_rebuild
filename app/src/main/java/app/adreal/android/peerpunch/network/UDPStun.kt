@@ -15,26 +15,26 @@ class UDPStun {
     companion object {
         private const val GOOGLE_STUN_SERVER_IP = "74.125.197.127"
         private const val GOOGLE_STUN_SERVER_PORT = 19302
-    }
 
-    fun sendUDPBindingRequest() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val sendMH = MessageHeader(MessageHeaderInterface.MessageHeaderType.BindingRequest)
-            val changeRequest = ChangeRequest()
-            sendMH.addMessageAttribute(changeRequest)
-            val data = sendMH.bytes
+        fun sendUDPBindingRequest() {
+            CoroutineScope(Dispatchers.IO).launch {
+                val sendMH = MessageHeader(MessageHeaderInterface.MessageHeaderType.BindingRequest)
+                val changeRequest = ChangeRequest()
+                sendMH.addMessageAttribute(changeRequest)
+                val data = sendMH.bytes
 
-            val datagramPacket = DatagramPacket(
-                data,
-                data.size,
+                val datagramPacket = DatagramPacket(
+                    data,
+                    data.size,
+                    withContext(Dispatchers.IO) {
+                        InetAddress.getByName(GOOGLE_STUN_SERVER_IP)
+                    },
+                    GOOGLE_STUN_SERVER_PORT
+                )
+
                 withContext(Dispatchers.IO) {
-                    InetAddress.getByName(GOOGLE_STUN_SERVER_IP)
-                },
-                GOOGLE_STUN_SERVER_PORT
-            )
-
-            withContext(Dispatchers.IO) {
-                SocketHandler.UDPSocket.send(datagramPacket)
+                    SocketHandler.UDPSocket.send(datagramPacket)
+                }
             }
         }
     }

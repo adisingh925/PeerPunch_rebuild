@@ -45,14 +45,39 @@ class DataTransfer : Fragment() {
 
         initRecycler()
 
+        UDPReceiver.lastReceiveTime = 0
+
+        UDPSender.configureKeepAliveTimer()
+
+        UDPSender.keepAliveTimer.start()
+
+        UDPReceiver.setHasPeerExited(false)
+
+        UDPSender.timeLeft.observe(viewLifecycleOwner){
+            if(UDPReceiver.lastReceiveTime != 0.toLong()){
+                if((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 5000){
+                    UDPReceiver.setHasPeerExited(true)
+                }
+            }
+        }
+
+        UDPReceiver.getHasPeerExited().observe(viewLifecycleOwner) {
+            if(it){
+                UDPSender.keepAliveTimer.cancel()
+                findNavController().popBackStack()
+            }
+        }
+
         binding.send.setOnClickListener {
             if(binding.messageInput.text.toString().isNotBlank()){
+                UDPSender.sendUDPMessage(binding.messageInput.text.toString())
+
                 if(binding.messageInput.text.toString() == UDPReceiver.EXIT_CHAT){
-                    findNavController().popBackStack()
+                    UDPReceiver.setHasPeerExited(true)
                 }else{
                     dataTransferViewModel.addData(Data(System.currentTimeMillis(), binding.messageInput.text.toString(), 0))
                 }
-                UDPSender.sendUDPMessage(binding.messageInput.text.toString())
+
                 binding.messageInput.setText("")
             }
         }

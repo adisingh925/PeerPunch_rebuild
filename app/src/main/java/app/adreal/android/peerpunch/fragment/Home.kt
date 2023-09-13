@@ -1,24 +1,20 @@
 package app.adreal.android.peerpunch.fragment
 
-import android.net.InetAddresses
-import android.os.Build
 import android.os.Bundle
 import android.util.Patterns
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import app.adreal.android.peerpunch.R
 import app.adreal.android.peerpunch.databinding.FragmentHomeBinding
 import app.adreal.android.peerpunch.network.IPHandler
-import app.adreal.android.peerpunch.network.SocketHandler
 import app.adreal.android.peerpunch.network.UDPReceiver
+import app.adreal.android.peerpunch.network.UDPSender
 import app.adreal.android.peerpunch.viewmodel.HomeFragmentViewModel
-import java.net.InetAddress
-import java.util.regex.Pattern
 
 class Home : Fragment() {
 
@@ -54,7 +50,7 @@ class Home : Fragment() {
 
             if (binding.ipInput.text.toString().isNotBlank()) {
                 if (Patterns.IP_ADDRESS.matcher(binding.ipInput.text.toString()).matches()) {
-                    IPHandler.publicIP.postValue(binding.ipInput.text.toString())
+                    IPHandler.receiverIP.postValue(binding.ipInput.text.toString())
                     findNavController().navigate(R.id.action_home2_to_dataTransfer)
                 } else {
                     binding.ipLayout.error = "Invalid IP Address"
