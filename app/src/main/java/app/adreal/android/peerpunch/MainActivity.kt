@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        UDPReceiver.startUDPReceiver()
+        UDPReceiver.startUDPReceiver(this)
         UDPStun().sendUDPBindingRequest()
         SocketHandler.initUDPSocket()
     }

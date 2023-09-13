@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class Data(
     @PrimaryKey
     val messageId: Long,
-    val message : String
+    val message : String,
+    val isReceived : Int = 0
 )

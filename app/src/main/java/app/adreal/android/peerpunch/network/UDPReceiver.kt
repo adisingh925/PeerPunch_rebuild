@@ -1,6 +1,9 @@
 package app.adreal.android.peerpunch.network
 
+import android.content.Context
 import android.util.Log
+import app.adreal.android.peerpunch.database.Database
+import app.adreal.android.peerpunch.model.Data
 import de.javawi.jstun.attribute.MappedAddress
 import de.javawi.jstun.attribute.MessageAttributeInterface
 import de.javawi.jstun.header.MessageHeader
@@ -11,14 +14,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.DatagramPacket
 
-class UDPReceiver {
+class UDPReceiver() {
 
     companion object {
         var EXIT_UDP_RECEIVER = false
         private const val CONNECTION_ESTABLISH_STRING = "#$%*#)$%*#)%#%#"
         private const val EXIT_CHAT = "EXIT_CHAT"
 
-        fun startUDPReceiver() {
+        fun startUDPReceiver(context: Context) {
             CoroutineScope(Dispatchers.IO).launch {
                 while (EXIT_UDP_RECEIVER.not()) {
                     val datagramPacket = DatagramPacket(ByteArray(512), 512)
@@ -43,7 +46,7 @@ class UDPReceiver {
                             Log.d("UDPReceiver", "Error parsing UDP binding packet: ${e.message}")
                         }
                     } else if (receivedData != CONNECTION_ESTABLISH_STRING && receivedData != EXIT_CHAT) {
-
+                        Database.getDatabase(context).dao().addData(Data(System.currentTimeMillis(), receivedData, 1))
                     } else if (receivedData == EXIT_CHAT) {
                         EXIT_UDP_RECEIVER = true
                     }

@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import app.adreal.android.peerpunch.dao.Dao
+import app.adreal.android.peerpunch.model.Data
 
+@androidx.room.Database(entities = [Data::class], version = 1, exportSchema = false)
 abstract class Database : RoomDatabase() {
 
     abstract fun dao(): Dao
