@@ -1,0 +1,11 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.PeerPunch" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your dark theme here. -->
+        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/androidDefaultDark</item>
+        <item name="android:navigationBarColor">@color/androidDefaultDark</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>
