@@ -41,6 +41,14 @@ class Home : Fragment() {
             homeFragmentViewModel.setIp(text.toString())
         }
 
+        IPHandler.publicIP.observe(viewLifecycleOwner) {
+            binding.publicIP.text = it
+        }
+
+        IPHandler.privateIP.observe(viewLifecycleOwner) {
+            binding.privateIP.text = it
+        }
+
         binding.connect.setOnClickListener {
             binding.ipLayout.error = null
 

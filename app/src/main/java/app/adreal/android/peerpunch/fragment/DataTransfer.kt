@@ -6,10 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.adreal.android.peerpunch.adapter.ChatAdapter
 import app.adreal.android.peerpunch.databinding.FragmentDataTransferBinding
 import app.adreal.android.peerpunch.model.Data
+import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPSender
 import app.adreal.android.peerpunch.viewmodel.DataTransferViewModel
 
@@ -45,7 +47,11 @@ class DataTransfer : Fragment() {
 
         binding.send.setOnClickListener {
             if(binding.messageInput.text.toString().isNotBlank()){
-                dataTransferViewModel.addData(Data(System.currentTimeMillis(), binding.messageInput.text.toString(), 0))
+                if(binding.messageInput.text.toString() == UDPReceiver.EXIT_CHAT){
+                    findNavController().popBackStack()
+                }else{
+                    dataTransferViewModel.addData(Data(System.currentTimeMillis(), binding.messageInput.text.toString(), 0))
+                }
                 UDPSender.sendUDPMessage(binding.messageInput.text.toString())
                 binding.messageInput.setText("")
             }
@@ -56,10 +62,10 @@ class DataTransfer : Fragment() {
             recyclerView.smoothScrollToPosition(adapter.itemCount)
         }
 
-        recyclerView.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+        recyclerView.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
             if (bottom < oldBottom) {
                 recyclerView.post {
-                    recyclerView.smoothScrollToPosition(0)
+                    recyclerView.smoothScrollToPosition(adapter.itemCount)
                 }
             }
         }
@@ -69,7 +75,6 @@ class DataTransfer : Fragment() {
 
     private fun initRecycler() {
         recyclerView.adapter = adapter
-        linearLayoutManager.reverseLayout = true
         linearLayoutManager.stackFromEnd = true
         linearLayoutManager.isSmoothScrollbarEnabled = true
         recyclerView.layoutManager = linearLayoutManager

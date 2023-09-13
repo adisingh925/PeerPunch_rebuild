@@ -3,6 +3,7 @@ package app.adreal.android.peerpunch.network
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.DatagramPacket
 import java.net.InetAddress
 
@@ -15,10 +16,14 @@ class UDPSender {
                 val datagramPacket = DatagramPacket(
                     byteArrayData,
                     byteArrayData.size,
-                    InetAddress.getByName(IPHandler.publicIP.value),
+                    withContext(Dispatchers.IO) {
+                        InetAddress.getByName(IPHandler.publicIP.value)
+                    },
                     SocketHandler.UDPPort
                 )
-                SocketHandler.UDPSocket.send(datagramPacket)
+                withContext(Dispatchers.IO) {
+                    SocketHandler.UDPSocket.send(datagramPacket)
+                }
             }
         }
     }

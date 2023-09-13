@@ -7,6 +7,22 @@
     android:layout_height="match_parent"
     tools:context=".fragment.Home">
 
+    <TextView
+        android:id="@+id/privateIP"
+        app:layout_constraintBottom_toTopOf="@id/publicIP"
+        app:layout_constraintEnd_toEndOf="@id/publicIP"
+        android:layout_marginBottom="3dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:id="@+id/publicIP"
+        app:layout_constraintEnd_toEndOf="@id/ipLayout"
+        app:layout_constraintBottom_toTopOf="@id/ipLayout"
+        android:layout_marginBottom="3dp"
+        android:layout_height="wrap_content"/>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/ipLayout"
         app:layout_constraintRight_toRightOf="parent"

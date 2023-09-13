@@ -2,6 +2,7 @@ package app.adreal.android.peerpunch.network
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import app.adreal.android.peerpunch.database.Database
 import app.adreal.android.peerpunch.model.Data
 import de.javawi.jstun.attribute.MappedAddress
@@ -14,24 +15,30 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.DatagramPacket
 
-class UDPReceiver() {
+class UDPReceiver {
 
     companion object {
-        var EXIT_UDP_RECEIVER = false
         private const val CONNECTION_ESTABLISH_STRING = "#$%*#)$%*#)%#%#"
-        private const val EXIT_CHAT = "EXIT_CHAT"
+        const val EXIT_CHAT = "EXIT_CHAT"
+        private val hasPeerExited = MutableLiveData(false)
+
+        fun getHasPeerExited(): MutableLiveData<Boolean> {
+            return hasPeerExited
+        }
+
+        fun setHasPeerExited(value: Boolean) {
+            hasPeerExited.postValue(value)
+        }
 
         fun startUDPReceiver(context: Context) {
             CoroutineScope(Dispatchers.IO).launch {
-                while (EXIT_UDP_RECEIVER.not()) {
+                while (true) {
                     val datagramPacket = DatagramPacket(ByteArray(512), 512)
                     withContext(Dispatchers.IO) {
                         SocketHandler.UDPSocket.receive(datagramPacket)
                     }
 
                     val receivedData = String(datagramPacket.data, 0, datagramPacket.data.indexOf(0))
-
-                    Log.d("received data, Length", receivedData + " " + receivedData.length)
 
                     val messageType = ((datagramPacket.data[0].toInt() shl 8) or datagramPacket.data[1].toInt()).toShort()
 
@@ -48,7 +55,7 @@ class UDPReceiver() {
                     } else if (receivedData != CONNECTION_ESTABLISH_STRING && receivedData != EXIT_CHAT) {
                         Database.getDatabase(context).dao().addData(Data(System.currentTimeMillis(), receivedData, 1))
                     } else if (receivedData == EXIT_CHAT) {
-                        EXIT_UDP_RECEIVER = true
+                        hasPeerExited.postValue(true)
                     }
                 }
             }

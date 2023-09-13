@@ -6,14 +6,15 @@ import de.javawi.jstun.header.MessageHeaderInterface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.DatagramPacket
 import java.net.InetAddress
 
 class UDPStun {
 
     companion object {
-        private const val STUNTMAN_STUN_SERVER = "stunserver.stunprotocol.org"
-        private const val STUNTMAN_STUN_SERVER_PORT = 3478
+        private const val GOOGLE_STUN_SERVER_IP = "74.125.197.127"
+        private const val GOOGLE_STUN_SERVER_PORT = 19302
     }
 
     fun sendUDPBindingRequest() {
@@ -26,11 +27,15 @@ class UDPStun {
             val datagramPacket = DatagramPacket(
                 data,
                 data.size,
-                InetAddress.getByName(STUNTMAN_STUN_SERVER),
-                STUNTMAN_STUN_SERVER_PORT
+                withContext(Dispatchers.IO) {
+                    InetAddress.getByName(GOOGLE_STUN_SERVER_IP)
+                },
+                GOOGLE_STUN_SERVER_PORT
             )
 
-            SocketHandler.UDPSocket.send(datagramPacket)
+            withContext(Dispatchers.IO) {
+                SocketHandler.UDPSocket.send(datagramPacket)
+            }
         }
     }
 }

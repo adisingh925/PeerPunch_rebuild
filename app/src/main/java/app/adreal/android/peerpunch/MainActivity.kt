@@ -3,6 +3,7 @@ package app.adreal.android.peerpunch
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import app.adreal.android.peerpunch.databinding.ActivityMainBinding
+import app.adreal.android.peerpunch.network.IPHandler
 import app.adreal.android.peerpunch.network.SocketHandler
 import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPStun
@@ -20,5 +21,6 @@ class MainActivity : AppCompatActivity() {
         UDPReceiver.startUDPReceiver(this)
         UDPStun().sendUDPBindingRequest()
         SocketHandler.initUDPSocket()
+        IPHandler.privateIP.postValue(IPHandler().getIPAddress())
     }
 }
