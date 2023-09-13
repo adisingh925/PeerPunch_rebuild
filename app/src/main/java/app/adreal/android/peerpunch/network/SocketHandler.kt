@@ -6,7 +6,7 @@ import java.net.DatagramSocket
 class SocketHandler {
 
     companion object {
-        private const val UDPPort = 50001
+        const val UDPPort = 50001
         lateinit var UDPSocket: DatagramSocket
 
         fun initUDPSocket() {

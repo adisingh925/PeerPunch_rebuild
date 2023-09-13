@@ -13,8 +13,7 @@
         android:minWidth="70dp"
         android:layout_marginTop="4dp"
         android:background="@drawable/sender_background"
-        android:maxWidth="300dp"
-        android:minHeight="30dp">
+        android:maxWidth="300dp">
 
         <TextView
             android:id="@+id/senderMessage"

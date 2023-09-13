@@ -32,6 +32,9 @@ class DataTransfer : Fragment() {
         binding.recyclerView
     }
 
+    private val linearLayoutManager by lazy {
+        LinearLayoutManager(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,10 +44,10 @@ class DataTransfer : Fragment() {
         initRecycler()
 
         binding.send.setOnClickListener {
-            if(binding.edittext.text.toString().isNotBlank()){
-                dataTransferViewModel.addData(Data(System.currentTimeMillis(), binding.edittext.text.toString(), 0))
-                UDPSender.sendUDPMessage(binding.edittext.text.toString())
-                binding.edittext.setText("")
+            if(binding.messageInput.text.toString().isNotBlank()){
+                dataTransferViewModel.addData(Data(System.currentTimeMillis(), binding.messageInput.text.toString(), 0))
+                UDPSender.sendUDPMessage(binding.messageInput.text.toString())
+                binding.messageInput.setText("")
             }
         }
 
@@ -53,11 +56,22 @@ class DataTransfer : Fragment() {
             recyclerView.smoothScrollToPosition(adapter.itemCount)
         }
 
+        recyclerView.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (bottom < oldBottom) {
+                recyclerView.post {
+                    recyclerView.smoothScrollToPosition(0)
+                }
+            }
+        }
+
         return binding.root
     }
 
     private fun initRecycler() {
         recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        linearLayoutManager.reverseLayout = true
+        linearLayoutManager.stackFromEnd = true
+        linearLayoutManager.isSmoothScrollbarEnabled = true
+        recyclerView.layoutManager = linearLayoutManager
     }
 }
