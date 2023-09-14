@@ -13,6 +13,7 @@ import app.adreal.android.peerpunch.databinding.FragmentDataTransferBinding
 import app.adreal.android.peerpunch.model.Data
 import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPSender
+import app.adreal.android.peerpunch.util.Constants
 import app.adreal.android.peerpunch.viewmodel.DataTransferViewModel
 
 
@@ -51,8 +52,6 @@ class DataTransfer : Fragment() {
 
         UDPSender.keepAliveTimer.start()
 
-        UDPReceiver.setHasPeerExited(false)
-
         UDPSender.timeLeft.observe(viewLifecycleOwner){
             if(UDPReceiver.lastReceiveTime != 0.toLong()){
                 if((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 5000){
@@ -63,6 +62,7 @@ class DataTransfer : Fragment() {
 
         UDPReceiver.getHasPeerExited().observe(viewLifecycleOwner) {
             if(it){
+                UDPSender.sendUDPMessage(Constants.getExitChatString())
                 UDPSender.keepAliveTimer.cancel()
                 findNavController().popBackStack()
             }
@@ -72,7 +72,7 @@ class DataTransfer : Fragment() {
             if(binding.messageInput.text.toString().isNotBlank()){
                 UDPSender.sendUDPMessage(binding.messageInput.text.toString())
 
-                if(binding.messageInput.text.toString() == UDPReceiver.EXIT_CHAT){
+                if(binding.messageInput.text.toString() == Constants.getExitChatString()){
                     UDPReceiver.setHasPeerExited(true)
                 }else{
                     dataTransferViewModel.addData(Data(System.currentTimeMillis(), binding.messageInput.text.toString(), 0))

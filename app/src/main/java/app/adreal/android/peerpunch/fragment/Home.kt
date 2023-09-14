@@ -62,4 +62,9 @@ class Home : Fragment() {
 
         return binding.root
     }
+
+    override fun onResume() {
+        super.onResume()
+        UDPReceiver.setHasPeerExited(false)
+    }
 }

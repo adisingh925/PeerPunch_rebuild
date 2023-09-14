@@ -2,6 +2,7 @@ package app.adreal.android.peerpunch.network
 
 import android.os.CountDownTimer
 import androidx.lifecycle.MutableLiveData
+import app.adreal.android.peerpunch.util.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,13 +21,12 @@ class UDPSender {
 
             keepAliveTimer = object : CountDownTimer(3600000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
-                    sendUDPMessage(UDPReceiver.CONNECTION_ESTABLISH_STRING)
+                    sendUDPMessage(Constants.getConnectionEstablishString())
                     timeLeft.postValue(millisUntilFinished)
                 }
 
                 override fun onFinish() {
                     UDPReceiver.setHasPeerExited(true)
-                    sendUDPMessage(UDPReceiver.EXIT_CHAT)
                 }
             }
         }
@@ -40,7 +40,7 @@ class UDPSender {
                     withContext(Dispatchers.IO) {
                         InetAddress.getByName(IPHandler.receiverIP.value)
                     },
-                    SocketHandler.UDPPort
+                    Constants.getUdpPort()
                 )
                 withContext(Dispatchers.IO) {
                     SocketHandler.UDPSocket.send(datagramPacket)

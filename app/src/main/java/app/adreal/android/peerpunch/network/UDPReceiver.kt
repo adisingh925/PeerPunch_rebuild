@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import app.adreal.android.peerpunch.database.Database
 import app.adreal.android.peerpunch.model.Data
+import app.adreal.android.peerpunch.util.Constants
 import de.javawi.jstun.attribute.MappedAddress
 import de.javawi.jstun.attribute.MessageAttributeInterface
 import de.javawi.jstun.header.MessageHeader
@@ -19,9 +20,8 @@ import java.net.DatagramPacket
 class UDPReceiver {
 
     companion object {
-        const val CONNECTION_ESTABLISH_STRING = "#$%*#)$%*#)%#%#"
-        const val EXIT_CHAT = "EXIT_CHAT"
-        private val hasPeerExited = MutableLiveData(true)
+
+        private val hasPeerExited = MutableLiveData(false)
         var lastReceiveTime : Long = 0
 
         fun getHasPeerExited(): MutableLiveData<Boolean> {
@@ -54,9 +54,9 @@ class UDPReceiver {
                         } catch (e: Exception) {
                             Log.d("UDPReceiver", "Error parsing UDP binding packet: ${e.message}")
                         }
-                    } else if (receivedData == EXIT_CHAT) {
+                    } else if (receivedData == Constants.getExitChatString()) {
                         hasPeerExited.postValue(true)
-                    } else if (receivedData == CONNECTION_ESTABLISH_STRING) {
+                    } else if (receivedData == Constants.getConnectionEstablishString()) {
                         lastReceiveTime = System.currentTimeMillis()
                         Log.d("UDPReceiver", "Received keep alive message")
                     } else {
