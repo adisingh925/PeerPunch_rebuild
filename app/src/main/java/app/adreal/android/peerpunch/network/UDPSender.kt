@@ -51,8 +51,6 @@ class UDPSender {
                     withContext(Dispatchers.IO) {
                         SocketHandler.UDPSocket.send(datagramPacket)
                     }
-
-                    Log.d("chunk size", chunk.toByteArray().size.toString())
                 }
             }
         }
