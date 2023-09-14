@@ -30,9 +30,12 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/messageInput"
-            android:inputType="text"
+            android:inputType="textMultiLine"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:maxHeight="200dp"
+            android:maxLength="2000"
+            android:scrollbars="vertical"
             android:hint="Type Here" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -47,6 +50,5 @@
         app:layout_constraintBottom_toBottomOf="@id/messageLayout"
         app:layout_constraintTop_toTopOf="@id/messageLayout"
         android:layout_height="wrap_content"/>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
