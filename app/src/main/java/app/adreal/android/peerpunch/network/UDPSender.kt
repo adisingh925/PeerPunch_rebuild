@@ -1,6 +1,7 @@
 package app.adreal.android.peerpunch.network
 
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import app.adreal.android.peerpunch.util.Constants
 import kotlinx.coroutines.CoroutineScope
@@ -14,10 +15,10 @@ class UDPSender {
 
     companion object {
 
-        lateinit var keepAliveTimer : CountDownTimer
+        lateinit var keepAliveTimer: CountDownTimer
         val timeLeft = MutableLiveData<Long>()
 
-        fun configureKeepAliveTimer(){
+        fun configureKeepAliveTimer() {
 
             keepAliveTimer = object : CountDownTimer(3600000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
@@ -33,17 +34,25 @@ class UDPSender {
 
         fun sendUDPMessage(message: String) {
             CoroutineScope(Dispatchers.IO).launch {
-                val byteArrayData = message.toByteArray()
-                val datagramPacket = DatagramPacket(
-                    byteArrayData,
-                    byteArrayData.size,
+
+                val chunks = message.chunked(256)
+
+                for (chunk in chunks) {
+                    val byteArrayData = chunk.toByteArray()
+
+                    val datagramPacket = DatagramPacket(
+                        byteArrayData,
+                        byteArrayData.size,
+                        withContext(Dispatchers.IO) {
+                            InetAddress.getByName(IPHandler.receiverIP.value)
+                        },
+                        Constants.getUdpPort()
+                    )
                     withContext(Dispatchers.IO) {
-                        InetAddress.getByName(IPHandler.receiverIP.value)
-                    },
-                    Constants.getUdpPort()
-                )
-                withContext(Dispatchers.IO) {
-                    SocketHandler.UDPSocket.send(datagramPacket)
+                        SocketHandler.UDPSocket.send(datagramPacket)
+                    }
+
+                    Log.d("chunk size", chunk.toByteArray().size.toString())
                 }
             }
         }

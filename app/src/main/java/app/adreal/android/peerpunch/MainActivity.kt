@@ -19,8 +19,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         UDPReceiver.startUDPReceiver(this)
-        UDPStun.sendUDPBindingRequest()
         SocketHandler.initUDPSocket()
+        UDPStun.sendUDPBindingRequest()
         IPHandler.privateIP.postValue(IPHandler.getIPAddress())
     }
 }
