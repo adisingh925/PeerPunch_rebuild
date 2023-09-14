@@ -14,12 +14,15 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
+    init {
+        SocketHandler.initUDPSocket()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         UDPReceiver.startUDPReceiver(this)
-        SocketHandler.initUDPSocket()
         UDPStun.sendUDPBindingRequest()
         IPHandler.privateIP.postValue(IPHandler.getIPAddress())
     }
