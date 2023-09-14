@@ -68,6 +68,6 @@ class ChatAdapter(private val context: Context) : RecyclerView.Adapter<RecyclerV
 
     fun setData(data: List<Data>) {
         this.messageList = data as ArrayList<Data>
-        notifyItemInserted(messageList.size)
+        notifyItemInserted(messageList.size - 1)
     }
 }
