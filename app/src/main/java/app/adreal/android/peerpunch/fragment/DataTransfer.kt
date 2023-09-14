@@ -62,6 +62,8 @@ class DataTransfer : Fragment() {
                 if((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 5000){
                     UDPReceiver.setHasPeerExited(true)
                 }
+            }else{
+                UDPReceiver.lastReceiveTime = System.currentTimeMillis()
             }
         }
 
