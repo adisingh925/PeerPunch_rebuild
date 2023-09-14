@@ -12,6 +12,7 @@ class IPHandler {
 
     companion object{
         val publicIP = MutableLiveData<String>()
+        val publicPort = MutableLiveData<Int>()
         val privateIP = MutableLiveData<String>()
         val receiverIP = MutableLiveData<String>()
 

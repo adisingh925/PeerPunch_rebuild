@@ -51,6 +51,7 @@ class UDPReceiver {
                             val mappedAddress = receiveMH.getMessageAttribute(MessageAttributeInterface.MessageAttributeType.MappedAddress) as MappedAddress
 
                             IPHandler.publicIP.postValue(mappedAddress.address.toString())
+                            IPHandler.publicPort.postValue(mappedAddress.port)
                         } catch (e: Exception) {
                             Log.d("UDPReceiver", "Error parsing UDP binding packet: ${e.message}")
                         }
