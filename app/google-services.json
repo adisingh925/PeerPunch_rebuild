@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "107285693635",
+    "project_id": "peerpunch-2794a",
+    "storage_bucket": "peerpunch-2794a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107285693635:android:0165d6c4b8104ef22a4e76",
+        "android_client_info": {
+          "package_name": "app.adreal.android.peerpunch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_YHXTCrToBoF_k4LgPJmXVrhi8ymNap0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
