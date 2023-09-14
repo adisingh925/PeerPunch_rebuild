@@ -1,10 +1,11 @@
 package app.adreal.android.peerpunch.fragment
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,6 +52,10 @@ class DataTransfer : Fragment() {
         UDPSender.configureKeepAliveTimer()
 
         UDPSender.keepAliveTimer.start()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner){
+            UDPReceiver.setHasPeerExited(true)
+        }
 
         UDPSender.timeLeft.observe(viewLifecycleOwner){
             if(UDPReceiver.lastReceiveTime != 0.toLong()){
