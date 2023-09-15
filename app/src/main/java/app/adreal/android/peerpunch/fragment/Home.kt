@@ -14,6 +14,7 @@ import app.adreal.android.peerpunch.databinding.FragmentHomeBinding
 import app.adreal.android.peerpunch.network.IPHandler
 import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPSender
+import app.adreal.android.peerpunch.util.Constants
 import app.adreal.android.peerpunch.viewmodel.HomeFragmentViewModel
 
 class Home : Fragment() {
@@ -59,6 +60,13 @@ class Home : Fragment() {
             if (binding.ipInput.text.toString().isNotBlank()) {
                 if (Patterns.IP_ADDRESS.matcher(binding.ipInput.text.toString()).matches()) {
                     IPHandler.receiverIP.postValue(binding.ipInput.text.toString())
+
+                    if (binding.portInput.text.toString().isNotBlank()) {
+                        IPHandler.receiverPort.postValue(binding.portInput.text.toString().toInt())
+                    } else {
+                        IPHandler.receiverPort.postValue(Constants.getUdpPort())
+                    }
+
                     findNavController().navigate(R.id.action_home2_to_dataTransfer)
                 } else {
                     binding.ipLayout.error = "Invalid IP Address"

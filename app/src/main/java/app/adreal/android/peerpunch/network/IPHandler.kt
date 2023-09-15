@@ -15,6 +15,7 @@ class IPHandler {
         val publicPort = MutableLiveData<Int>()
         val privateIP = MutableLiveData<String>()
         val receiverIP = MutableLiveData<String>()
+        val receiverPort = MutableLiveData<Int>()
 
         fun getIPAddress(useIPv4: Boolean = true): String {
             try {

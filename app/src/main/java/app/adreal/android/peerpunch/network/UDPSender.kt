@@ -46,7 +46,7 @@ class UDPSender {
                         withContext(Dispatchers.IO) {
                             InetAddress.getByName(IPHandler.receiverIP.value)
                         },
-                        Constants.getUdpPort()
+                        IPHandler.receiverPort.value!!
                     )
                     withContext(Dispatchers.IO) {
                         SocketHandler.UDPSocket.send(datagramPacket)
