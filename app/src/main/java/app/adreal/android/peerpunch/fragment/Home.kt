@@ -57,22 +57,22 @@ class Home : Fragment() {
         binding.connect.setOnClickListener {
             binding.ipLayout.error = null
 
+            if (binding.portInput.text.toString().isNotBlank()) {
+                IPHandler.receiverPort.postValue(binding.portInput.text.toString().toInt())
+            } else {
+                IPHandler.receiverPort.postValue(Constants.getUdpPort())
+            }
+
             if (binding.ipInput.text.toString().isNotBlank()) {
                 if (Patterns.IP_ADDRESS.matcher(binding.ipInput.text.toString()).matches()) {
                     IPHandler.receiverIP.postValue(binding.ipInput.text.toString())
-
-                    if (binding.portInput.text.toString().isNotBlank()) {
-                        IPHandler.receiverPort.postValue(binding.portInput.text.toString().toInt())
-                    } else {
-                        IPHandler.receiverPort.postValue(Constants.getUdpPort())
-                    }
-
                     findNavController().navigate(R.id.action_home2_to_dataTransfer)
                 } else {
                     binding.ipLayout.error = "Invalid IP Address"
                 }
             } else {
-                binding.ipLayout.error = "IP Address cannot be empty"
+                IPHandler.receiverIP.postValue(Constants.getLoopbackAddress())
+                findNavController().navigate(R.id.action_home2_to_dataTransfer)
             }
         }
 

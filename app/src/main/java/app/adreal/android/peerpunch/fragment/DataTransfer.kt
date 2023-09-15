@@ -1,6 +1,7 @@
 package app.adreal.android.peerpunch.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,14 +46,10 @@ class DataTransfer : Fragment() {
     ): View {
 
         initRecycler()
-
-        UDPReceiver.lastReceiveTime = 0
-
         UDPSender.configureKeepAliveTimer()
 
-        UDPSender.keepAliveTimer.start()
-
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner){
+            Log.d("DataTransfer", "Back pressed")
             UDPReceiver.setHasPeerExited(true)
         }
 
@@ -68,8 +65,10 @@ class DataTransfer : Fragment() {
 
         UDPReceiver.getHasPeerExited().observe(viewLifecycleOwner) {
             if(it){
+                Log.d("DataTransfer", "Peer exited")
                 UDPSender.sendUDPMessage(Constants.getExitChatString())
                 UDPSender.keepAliveTimer.cancel()
+                UDPReceiver.lastReceiveTime = 0
                 findNavController().popBackStack()
             }
         }
@@ -109,5 +108,10 @@ class DataTransfer : Fragment() {
         linearLayoutManager.stackFromEnd = true
         linearLayoutManager.isSmoothScrollbarEnabled = true
         recyclerView.layoutManager = linearLayoutManager
+    }
+
+    override fun onStart() {
+        super.onStart()
+        UDPSender.keepAliveTimer.start()
     }
 }

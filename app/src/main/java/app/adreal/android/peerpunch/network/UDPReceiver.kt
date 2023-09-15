@@ -45,6 +45,7 @@ class UDPReceiver {
                     val messageType = ((datagramPacket.data[0].toInt() shl 8) or datagramPacket.data[1].toInt()).toShort()
 
                     if (messageType == 0x0101.toShort()) {
+                        Log.d("UDPReceiver", "Received UDP binding response")
                         try {
                             val receiveMH = MessageHeader(MessageHeaderInterface.MessageHeaderType.BindingRequest)
                             receiveMH.parseAttributes(datagramPacket.data)
@@ -56,11 +57,13 @@ class UDPReceiver {
                             Log.d("UDPReceiver", "Error parsing UDP binding packet: ${e.message}")
                         }
                     } else if (receivedData == Constants.getExitChatString()) {
+                        Log.d("UDPReceiver", "Exit request received")
                         hasPeerExited.postValue(true)
                     } else if (receivedData == Constants.getConnectionEstablishString()) {
                         lastReceiveTime = System.currentTimeMillis()
                         Log.d("UDPReceiver", "Received keep alive message")
                     } else {
+                        Log.d("UDPReceiver", "Message received from peer")
                         Database.getDatabase(context).dao().addData(Data(System.currentTimeMillis(), receivedData, 1))
                     }
                 }
