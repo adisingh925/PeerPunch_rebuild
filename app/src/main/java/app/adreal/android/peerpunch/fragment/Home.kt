@@ -41,8 +41,12 @@ class Home : Fragment() {
             binding.publicIP.text = it
         }
 
-        IPHandler.publicPort.observe(viewLifecycleOwner){
-            binding.publicIP.text = binding.publicIP.text.toString() + " : " + it.toString()
+        IPHandler.publicPort.observe(viewLifecycleOwner) {
+            binding.publicIP.text = buildString {
+                append(binding.publicIP.text.toString())
+                append(" : ")
+                append(it.toString())
+            }
         }
 
         IPHandler.privateIP.observe(viewLifecycleOwner) {
