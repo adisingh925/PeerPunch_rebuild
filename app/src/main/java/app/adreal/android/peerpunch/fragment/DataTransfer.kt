@@ -17,7 +17,6 @@ import app.adreal.android.peerpunch.network.UDPSender
 import app.adreal.android.peerpunch.util.Constants
 import app.adreal.android.peerpunch.viewmodel.DataTransferViewModel
 
-
 class DataTransfer : Fragment() {
 
     private val binding by lazy {

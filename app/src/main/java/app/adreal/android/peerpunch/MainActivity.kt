@@ -2,11 +2,9 @@ package app.adreal.android.peerpunch
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.ViewModelProvider
 import app.adreal.android.peerpunch.databinding.ActivityMainBinding
-import app.adreal.android.peerpunch.network.IPHandler
-import app.adreal.android.peerpunch.network.SocketHandler
-import app.adreal.android.peerpunch.network.UDPReceiver
-import app.adreal.android.peerpunch.network.UDPStun
+import app.adreal.android.peerpunch.viewmodel.MainActivityViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,16 +12,14 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    init {
-        SocketHandler.initUDPSocket()
+    private val mainActivityViewModel by lazy{
+        ViewModelProvider(this)[MainActivityViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        UDPReceiver.startUDPReceiver(this)
-        UDPStun.sendUDPBindingRequest()
-        IPHandler.privateIP.postValue(IPHandler.getIPAddress())
+        mainActivityViewModel.intiStartupClasses(this)
     }
 }
