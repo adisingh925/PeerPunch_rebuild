@@ -11,6 +11,10 @@ android {
     namespace = "app.adreal.android.peerpunch"
     compileSdk = 33
 
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+    }
+
     buildFeatures {
         viewBinding = true
     }

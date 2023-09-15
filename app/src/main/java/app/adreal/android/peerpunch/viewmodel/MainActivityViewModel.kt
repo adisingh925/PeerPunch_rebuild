@@ -7,7 +7,7 @@ import app.adreal.android.peerpunch.network.SocketHandler
 
 class MainActivityViewModel : ViewModel() {
     fun intiStartupClasses(context: Context) {
-        SocketHandler.initUDPSocket(context)
         IPHandler.privateIP.postValue(IPHandler.getIPAddress())
+        SocketHandler.initUDPSocket(context)
     }
 }

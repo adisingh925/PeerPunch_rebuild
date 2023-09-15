@@ -3,6 +3,9 @@ package app.adreal.android.peerpunch.network
 import android.content.Context
 import android.util.Log
 import app.adreal.android.peerpunch.util.Constants
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.net.DatagramSocket
 
 class SocketHandler {
@@ -13,7 +16,7 @@ class SocketHandler {
         fun initUDPSocket(context: Context) {
             try {
                 UDPSocket = DatagramSocket(Constants.getUdpPort())
-                if(this::UDPSocket.isInitialized){
+                if (this::UDPSocket.isInitialized) {
                     UDPReceiver.startUDPReceiver(context)
                     UDPStun.sendUDPBindingRequest()
                 }
