@@ -64,6 +64,7 @@ class DataTransfer : Fragment() {
                 Log.d("DataTransfer", "Terminating Connection")
                 UDPSender.sendUDPMessage(Constants.getExitChatString())
                 UDPSender.keepAliveTimer.cancel()
+                Log.d("Navigating","Navigating from DataTransfer to Home")
                 findNavController().popBackStack()
             }
         }

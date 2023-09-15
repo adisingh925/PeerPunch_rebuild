@@ -57,8 +57,12 @@ class UDPReceiver {
                             Log.d("UDPReceiver", "Error parsing UDP binding packet: ${e.message}")
                         }
                     } else if (receivedData == Constants.getExitChatString()) {
-                        Log.d("UDPReceiver", "Exit request received")
-                        hasPeerExited.postValue(true)
+                        if(hasPeerExited.value == false){
+                            Log.d("UDPReceiver", "Exit request received")
+                            hasPeerExited.postValue(true)
+                        }else{
+                            Log.d("UDPReceiver", "Exit request received And Ignored")
+                        }
                     } else if (receivedData == Constants.getConnectionEstablishString()) {
                         lastReceiveTime = System.currentTimeMillis()
                         Log.d("UDPReceiver", "Received keep alive message")

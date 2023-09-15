@@ -1,6 +1,7 @@
 package app.adreal.android.peerpunch.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
@@ -77,6 +78,7 @@ class Home : Fragment() {
 
             if(checkFailed == 0){
                 UDPReceiver.setHasPeerExited(false)
+                Log.d("Navigating","Navigating from Home to DataTransfer")
                 findNavController().navigate(R.id.action_home2_to_dataTransfer)
             }
         }
