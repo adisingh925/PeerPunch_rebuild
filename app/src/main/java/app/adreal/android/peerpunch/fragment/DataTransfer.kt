@@ -54,21 +54,16 @@ class DataTransfer : Fragment() {
         }
 
         UDPSender.timeLeft.observe(viewLifecycleOwner){
-            if(UDPReceiver.lastReceiveTime != 0.toLong()){
-                if((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 5000){
-                    UDPReceiver.setHasPeerExited(true)
-                }
-            }else{
-                UDPReceiver.lastReceiveTime = System.currentTimeMillis()
+            if((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 5000){
+                UDPReceiver.setHasPeerExited(true)
             }
         }
 
         UDPReceiver.getHasPeerExited().observe(viewLifecycleOwner) {
             if(it){
-                Log.d("DataTransfer", "Peer exited")
+                Log.d("DataTransfer", "Terminating Connection")
                 UDPSender.sendUDPMessage(Constants.getExitChatString())
                 UDPSender.keepAliveTimer.cancel()
-                UDPReceiver.lastReceiveTime = 0
                 findNavController().popBackStack()
             }
         }
@@ -113,5 +108,6 @@ class DataTransfer : Fragment() {
     override fun onStart() {
         super.onStart()
         UDPSender.keepAliveTimer.start()
+        UDPReceiver.lastReceiveTime = System.currentTimeMillis()
     }
 }

@@ -55,6 +55,7 @@ class Home : Fragment() {
         }
 
         binding.connect.setOnClickListener {
+            var checkFailed = 0
             binding.ipLayout.error = null
 
             if (binding.portInput.text.toString().isNotBlank()) {
@@ -66,21 +67,20 @@ class Home : Fragment() {
             if (binding.ipInput.text.toString().isNotBlank()) {
                 if (Patterns.IP_ADDRESS.matcher(binding.ipInput.text.toString()).matches()) {
                     IPHandler.receiverIP.postValue(binding.ipInput.text.toString())
-                    findNavController().navigate(R.id.action_home2_to_dataTransfer)
                 } else {
                     binding.ipLayout.error = "Invalid IP Address"
+                    checkFailed++
                 }
             } else {
                 IPHandler.receiverIP.postValue(Constants.getLoopbackAddress())
+            }
+
+            if(checkFailed == 0){
+                UDPReceiver.setHasPeerExited(false)
                 findNavController().navigate(R.id.action_home2_to_dataTransfer)
             }
         }
 
         return binding.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-        UDPReceiver.setHasPeerExited(false)
     }
 }
