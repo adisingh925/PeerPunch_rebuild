@@ -67,7 +67,7 @@ class DataTransfer : Fragment() {
         ConnectionHandler.getConnectionStatus().observe(viewLifecycleOwner) {
             when (it) {
                 Constants.getConnecting() -> {
-                    binding.toolbar.subtitle = "Connecting"
+                    binding.toolbar.subtitle = "Connecting..."
                 }
 
                 Constants.getConnected() -> {
@@ -106,8 +106,8 @@ class DataTransfer : Fragment() {
         UDPReceiver.getHasPeerExited().observe(viewLifecycleOwner) {
             if (it) {
                 Log.d("DataTransfer", "Terminating Connection")
-                UDPSender.sendUDPMessage(Constants.getExitChatString())
                 UDPSender.keepAliveTimer.cancel()
+                UDPSender.sendUDPMessage(Constants.getExitChatString())
                 ConnectionHandler.setConnectionStatus(Constants.getDisconnected())
                 ((activity) as MainActivity).updateStatusBarColor(
                     resources.getString(R.color.androidDefaultDark),
@@ -165,6 +165,6 @@ class DataTransfer : Fragment() {
         super.onStart()
         ConnectionHandler.setConnectionStatus(Constants.getConnecting())
         UDPSender.keepAliveTimer.start()
-        UDPReceiver.lastReceiveTime = System.currentTimeMillis()
+        UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
     }
 }
