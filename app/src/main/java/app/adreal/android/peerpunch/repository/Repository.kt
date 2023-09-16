@@ -7,7 +7,11 @@ class Repository(private val dao: Dao) {
 
     val readAllData = dao.readAllData()
 
-    fun insertData(data: Data) {
+    suspend fun insertData(data: Data) {
         dao.addData(data)
+    }
+
+    suspend fun deleteAllData() {
+        dao.deleteAllData()
     }
 }

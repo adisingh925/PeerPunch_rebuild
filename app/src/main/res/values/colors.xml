@@ -8,4 +8,5 @@
     <color name="red">#FF0000</color>
     <color name="yellow">#FFFF00</color>
     <color name="darkNavigationBarColor">#00252e</color>
+    <color name="senderChatBlue">#2774AE</color>
 </resources>

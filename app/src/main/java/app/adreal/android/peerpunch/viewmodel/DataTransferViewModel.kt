@@ -31,4 +31,10 @@ class DataTransferViewModel(application: Application) : AndroidViewModel(applica
             repository.insertData(data)
         }
     }
+
+    fun deleteAllData(){
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.deleteAllData()
+        }
+    }
 }

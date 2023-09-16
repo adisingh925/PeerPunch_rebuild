@@ -18,11 +18,11 @@ class UDPSender {
         lateinit var keepAliveTimer: CountDownTimer
         val timeLeft = MutableLiveData<Long>()
 
-        fun configureKeepAliveTimer() {
+        fun configureKeepAliveTimer(ip: String, port: Int) {
 
             keepAliveTimer = object : CountDownTimer(3600000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
-                    sendUDPMessage(Constants.getConnectionEstablishString())
+                    sendUDPMessage(Constants.getConnectionEstablishString(), ip, port)
                     timeLeft.postValue(millisUntilFinished)
                 }
 
@@ -32,7 +32,7 @@ class UDPSender {
             }
         }
 
-        fun sendUDPMessage(message: String) {
+        fun sendUDPMessage(message: String, ip: String, port: Int) {
             CoroutineScope(Dispatchers.IO).launch {
 
                 val chunks = message.chunked(256)
@@ -44,12 +44,36 @@ class UDPSender {
                         byteArrayData,
                         byteArrayData.size,
                         withContext(Dispatchers.IO) {
-                            InetAddress.getByName(IPHandler.receiverIP.value)
+                            InetAddress.getByName(ip)
                         },
-                        IPHandler.receiverPort.value!!
+                        port
                     )
                     withContext(Dispatchers.IO) {
+                        try {
+                            SocketHandler.UDPSocket.send(datagramPacket)
+                        } catch (e: Exception) {
+                            Log.e("UDPSender", "Error sending UDP message: ${e.message}")
+                        }
+                    }
+                }
+            }
+        }
+
+        fun sendUDPMessage(message: ByteArray, ip: String, port: Int) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val datagramPacket = DatagramPacket(
+                    message,
+                    message.size,
+                    withContext(Dispatchers.IO) {
+                        InetAddress.getByName(ip)
+                    },
+                    port
+                )
+                withContext(Dispatchers.IO) {
+                    try {
                         SocketHandler.UDPSocket.send(datagramPacket)
+                    } catch (e: Exception) {
+                        Log.e("UDPSender", "Error sending STUN request: ${e.message}")
                     }
                 }
             }

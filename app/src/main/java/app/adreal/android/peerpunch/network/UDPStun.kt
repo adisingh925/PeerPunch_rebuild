@@ -23,18 +23,7 @@ class UDPStun {
                 sendMH.addMessageAttribute(changeRequest)
                 val data = sendMH.bytes
 
-                val datagramPacket = DatagramPacket(
-                    data,
-                    data.size,
-                    withContext(Dispatchers.IO) {
-                        InetAddress.getByName(GOOGLE_STUN_SERVER_IP)
-                    },
-                    GOOGLE_STUN_SERVER_PORT
-                )
-
-                withContext(Dispatchers.IO) {
-                    SocketHandler.UDPSocket.send(datagramPacket)
-                }
+                UDPSender.sendUDPMessage(data, GOOGLE_STUN_SERVER_IP, GOOGLE_STUN_SERVER_PORT)
             }
         }
     }

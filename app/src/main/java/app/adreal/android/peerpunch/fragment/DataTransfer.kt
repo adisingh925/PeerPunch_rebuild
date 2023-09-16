@@ -46,6 +46,14 @@ class DataTransfer : Fragment() {
         LinearLayoutManager(context)
     }
 
+    private val receiverIP by lazy{
+        IPHandler.receiverIP.value!!
+    }
+
+    private val receiverPORT by lazy{
+        IPHandler.receiverPort.value!!
+    }
+
     @SuppressLint("ResourceType")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,7 +61,8 @@ class DataTransfer : Fragment() {
     ): View {
 
         initRecycler()
-        UDPSender.configureKeepAliveTimer()
+        UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
+
         ((activity) as MainActivity).updateStatusBarColor(
             resources.getString(R.color.defaultBackground),
             resources.getString(R.color.darkNavigationBarColor)
@@ -112,20 +121,21 @@ class DataTransfer : Fragment() {
             if (it) {
                 Log.d("DataTransfer", "Terminating Connection")
                 UDPSender.keepAliveTimer.cancel()
-                UDPSender.sendUDPMessage(Constants.getExitChatString())
+                UDPSender.sendUDPMessage(Constants.getExitChatString(), receiverIP, receiverPORT)
                 ConnectionHandler.setConnectionStatus(Constants.getDisconnected())
                 ((activity) as MainActivity).updateStatusBarColor(
                     resources.getString(R.color.androidDefaultDark),
                     resources.getString(R.color.androidDefaultDark)
                 )
                 Log.d("Navigating", "Navigating from DataTransfer to Home")
+                dataTransferViewModel.deleteAllData()
                 findNavController().popBackStack()
             }
         }
 
         binding.send.setOnClickListener {
             if (binding.messageInput.text.toString().isNotBlank()) {
-                UDPSender.sendUDPMessage(binding.messageInput.text.toString())
+                UDPSender.sendUDPMessage(binding.messageInput.text.toString(), receiverIP, receiverPORT)
 
                 if (binding.messageInput.text.toString() == Constants.getExitChatString()) {
                     UDPReceiver.setHasPeerExited(true)
