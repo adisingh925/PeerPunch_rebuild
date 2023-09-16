@@ -77,19 +77,18 @@ class DataTransfer : Fragment() {
 
         UDPReceiver.getIsECDHReceived().observe(viewLifecycleOwner){
             if (it) {
-//                UDPSender.ECDHTimer.cancel()
-//                UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
-//                UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
-//                UDPSender.keepAliveTimer.start()
+                UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
+                UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
+                UDPSender.keepAliveTimer.start()
             }
         }
 
         UDPSender.getIsECDHTimerFinished().observe(viewLifecycleOwner){
             if (it) {
-                Log.d("DataTransfer", "ECDH Timer Finished")
-                UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
-                UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
-                UDPSender.keepAliveTimer.start()
+//                Log.d("DataTransfer", "ECDH Timer Finished")
+//                UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
+//                UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
+//                UDPSender.keepAliveTimer.start()
             }
         }
 
@@ -124,7 +123,7 @@ class DataTransfer : Fragment() {
                 }
             }
 
-            if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 3000) {
+            if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) >= 3000) {
                 if (ConnectionHandler.getConnectionStatus().value != Constants.getConnecting()) {
                     ConnectionHandler.setConnectionStatus(Constants.getConnecting())
                 }
