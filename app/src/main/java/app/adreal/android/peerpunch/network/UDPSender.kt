@@ -1,9 +1,16 @@
 package app.adreal.android.peerpunch.network
 
+import android.os.Build
 import android.os.CountDownTimer
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
+import app.adreal.android.peerpunch.encryption.Encryption
+import app.adreal.android.peerpunch.model.CipherDataSend
 import app.adreal.android.peerpunch.model.Data
+import app.adreal.android.peerpunch.model.ECDHPublicSend
+import app.adreal.android.peerpunch.model.EncryptedData
+import app.adreal.android.peerpunch.storage.SharedPreferences
 import app.adreal.android.peerpunch.util.Constants
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -12,20 +19,55 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.DatagramPacket
 import java.net.InetAddress
+import java.util.Base64
 
 class UDPSender {
 
     companion object {
 
         lateinit var keepAliveTimer: CountDownTimer
+        lateinit var ECDHTimer: CountDownTimer
+
         val timeLeft = MutableLiveData<Long>()
+        var ECDHTimeLeft = MutableLiveData<Long>()
 
         fun configureKeepAliveTimer(ip: String, port: Int) {
-
             keepAliveTimer = object : CountDownTimer(3600000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
                     sendUDPMessage(Constants.getConnectionEstablishString(), ip, port)
                     timeLeft.postValue(millisUntilFinished)
+                }
+
+                override fun onFinish() {
+                    UDPReceiver.setHasPeerExited(true)
+                }
+            }
+        }
+
+        fun configureECDHTimer(ip: String, port: Int) {
+            ECDHTimer = object : CountDownTimer(3600000, 1000) {
+                override fun onTick(millisUntilFinished: Long) {
+                    Log.d(
+                        "UDPSender",
+                        "Sending ECDH public key : ${
+                            SharedPreferences.read(
+                                Encryption.ECDH_PUBLIC,
+                                ""
+                            )
+                        }"
+                    )
+
+                    sendUDPMessage(
+                        Gson().toJson(
+                            ECDHPublicSend(
+                                SharedPreferences.read(
+                                    Encryption.ECDH_PUBLIC, ""
+                                ).toString()
+                            )
+                        ).toByteArray(), ip, port
+                    )
+
+                    ECDHTimeLeft.postValue(millisUntilFinished)
                 }
 
                 override fun onFinish() {
@@ -40,8 +82,14 @@ class UDPSender {
                 val chunks = message.chunked(256)
 
                 for (chunk in chunks) {
-
-                    val byteArrayData = Gson().toJson(Data(System.currentTimeMillis(), chunk, 1)).toByteArray()
+                    val encryptedData = Encryption.encryptUsingSymmetricKey(chunk)
+                    val byteArrayData = Gson().toJson(
+                        CipherDataSend(
+                            Base64.getEncoder().encodeToString(encryptedData.cipherText),
+                            Base64.getEncoder().encodeToString(encryptedData.iv),
+                            Encryption.generateHMAC(chunk)
+                        )
+                    ).toByteArray()
 
                     val datagramPacket = DatagramPacket(
                         byteArrayData,
@@ -59,6 +107,8 @@ class UDPSender {
                             Log.e("UDPSender", "Error sending UDP message: ${e.message}")
                         }
                     }
+
+                    Log.d("Packet Size", byteArrayData.size.toString())
                 }
             }
         }

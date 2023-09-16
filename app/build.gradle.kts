@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "app.adreal.android.peerpunch"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -70,4 +70,5 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-perf-ktx")
     implementation("com.google.code.gson:gson:2.9.0")
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
 }

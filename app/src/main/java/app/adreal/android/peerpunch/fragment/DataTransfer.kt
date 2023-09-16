@@ -61,7 +61,7 @@ class DataTransfer : Fragment() {
     ): View {
 
         initRecycler()
-        UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
+        UDPSender.configureECDHTimer(receiverIP, receiverPORT)
 
         ((activity) as MainActivity).updateStatusBarColor(
             resources.getString(R.color.defaultBackground),
@@ -73,6 +73,15 @@ class DataTransfer : Fragment() {
         binding.toolbar.setNavigationOnClickListener {
             Log.d("DataTransfer", "Toolbar Back pressed")
             UDPReceiver.setHasPeerExited(true)
+        }
+
+        UDPReceiver.getIsECDHReceived().observe(viewLifecycleOwner){
+            if (it) {
+                UDPSender.ECDHTimer.cancel()
+                UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
+                UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
+                UDPSender.keepAliveTimer.start()
+            }
         }
 
         ConnectionHandler.getConnectionStatus().observe(viewLifecycleOwner) {
@@ -179,7 +188,6 @@ class DataTransfer : Fragment() {
     override fun onStart() {
         super.onStart()
         ConnectionHandler.setConnectionStatus(Constants.getConnecting())
-        UDPSender.keepAliveTimer.start()
-        UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
+        UDPSender.ECDHTimer.start()
     }
 }

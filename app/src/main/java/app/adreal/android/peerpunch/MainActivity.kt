@@ -1,11 +1,14 @@
 package app.adreal.android.peerpunch
 
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import app.adreal.android.peerpunch.databinding.ActivityMainBinding
+import app.adreal.android.peerpunch.storage.SharedPreferences
 import app.adreal.android.peerpunch.viewmodel.MainActivityViewModel
 
 
@@ -23,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        SharedPreferences.init(this)
         mainActivityViewModel.intiStartupClasses(this)
     }
 
