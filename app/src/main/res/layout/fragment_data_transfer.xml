@@ -81,7 +81,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:backgroundTint="#005a00"
+        android:backgroundTint="#2774AE"
         android:src="@drawable/send"
         app:fabCustomSize="50dp"
         app:layout_constraintBottom_toBottomOf="@id/cardView"

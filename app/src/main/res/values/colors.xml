@@ -4,4 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="androidDefaultDark">#1c1c1c</color>
     <color name="defaultBackground">#273746</color>
+    <color name="green">#00FF00</color>
+    <color name="red">#FF0000</color>
+    <color name="yellow">#FFFF00</color>
 </resources>

@@ -1,6 +1,7 @@
 package app.adreal.android.peerpunch.fragment
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -67,14 +68,17 @@ class DataTransfer : Fragment() {
         ConnectionHandler.getConnectionStatus().observe(viewLifecycleOwner) {
             when (it) {
                 Constants.getConnecting() -> {
+                    binding.toolbar.setSubtitleTextColor(Color.parseColor(resources.getString(R.color.yellow)))
                     binding.toolbar.subtitle = "Connecting..."
                 }
 
                 Constants.getConnected() -> {
+                    binding.toolbar.setSubtitleTextColor(Color.parseColor(resources.getString(R.color.green)))
                     binding.toolbar.subtitle = "Connected"
                 }
 
                 Constants.getDisconnected() -> {
+                    binding.toolbar.setSubtitleTextColor(Color.parseColor(resources.getString(R.color.red)))
                     binding.toolbar.subtitle = "Disconnected"
                 }
             }
