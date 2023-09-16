@@ -3,4 +3,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="androidDefaultDark">#1c1c1c</color>
+    <color name="defaultBackground">#273746</color>
 </resources>

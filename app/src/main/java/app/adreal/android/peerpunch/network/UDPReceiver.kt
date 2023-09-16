@@ -65,6 +65,9 @@ class UDPReceiver {
                         }
                     } else if (receivedData == Constants.getConnectionEstablishString()) {
                         lastReceiveTime = System.currentTimeMillis()
+                        if(ConnectionHandler.getConnectionStatus().value != Constants.getConnected()){
+                            ConnectionHandler.setConnectionStatus(Constants.getConnected())
+                        }
                         Log.d("UDPReceiver", "Received keep alive message")
                     } else {
                         Log.d("UDPReceiver", "Message received from peer")

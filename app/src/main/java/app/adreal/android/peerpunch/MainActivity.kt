@@ -1,10 +1,13 @@
 package app.adreal.android.peerpunch
 
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Color
 import android.os.Bundle
+import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import app.adreal.android.peerpunch.databinding.ActivityMainBinding
 import app.adreal.android.peerpunch.viewmodel.MainActivityViewModel
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,5 +24,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         mainActivityViewModel.intiStartupClasses(this)
+    }
+
+    fun updateStatusBarColor(color: String?, navigationBarColor : String) {
+        val window = window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = Color.parseColor(color)
+        window.navigationBarColor = Color.parseColor(navigationBarColor)
     }
 }
