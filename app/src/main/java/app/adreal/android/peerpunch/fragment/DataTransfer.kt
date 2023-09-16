@@ -58,7 +58,6 @@ class DataTransfer : Fragment() {
             "#00252e"
         )
         binding.toolbar.title = IPHandler.receiverIP.value + " : " + IPHandler.receiverPort.value
-        binding.toolbar.subtitle = "Connected"
 
         binding.toolbar.setNavigationOnClickListener {
             Log.d("DataTransfer", "Toolbar Back pressed")
@@ -87,12 +86,19 @@ class DataTransfer : Fragment() {
         }
 
         UDPSender.timeLeft.observe(viewLifecycleOwner) {
-            if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 2000) {
-                ConnectionHandler.setConnectionStatus(Constants.getConnecting())
+            if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) < 3000) {
+                if (ConnectionHandler.getConnectionStatus().value != Constants.getConnected()) {
+                    ConnectionHandler.setConnectionStatus(Constants.getConnected())
+                }
             }
 
-            if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 5000) {
-                ConnectionHandler.setConnectionStatus(Constants.getDisconnected())
+            if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 3000) {
+                if (ConnectionHandler.getConnectionStatus().value != Constants.getConnecting()) {
+                    ConnectionHandler.setConnectionStatus(Constants.getConnecting())
+                }
+            }
+
+            if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 10000) {
                 UDPReceiver.setHasPeerExited(true)
             }
         }
@@ -102,11 +108,12 @@ class DataTransfer : Fragment() {
                 Log.d("DataTransfer", "Terminating Connection")
                 UDPSender.sendUDPMessage(Constants.getExitChatString())
                 UDPSender.keepAliveTimer.cancel()
-                Log.d("Navigating", "Navigating from DataTransfer to Home")
+                ConnectionHandler.setConnectionStatus(Constants.getDisconnected())
                 ((activity) as MainActivity).updateStatusBarColor(
                     resources.getString(R.color.androidDefaultDark),
                     resources.getString(R.color.androidDefaultDark)
                 )
+                Log.d("Navigating", "Navigating from DataTransfer to Home")
                 findNavController().popBackStack()
             }
         }

@@ -21,7 +21,7 @@ class UDPReceiver {
 
     companion object {
 
-        private val hasPeerExited = MutableLiveData(false)
+        private val hasPeerExited = MutableLiveData(true)
         var lastReceiveTime : Long = 0
 
         fun getHasPeerExited(): MutableLiveData<Boolean> {
@@ -64,11 +64,12 @@ class UDPReceiver {
                             Log.d("UDPReceiver", "Exit request received And Ignored")
                         }
                     } else if (receivedData == Constants.getConnectionEstablishString()) {
-                        lastReceiveTime = System.currentTimeMillis()
-                        if(ConnectionHandler.getConnectionStatus().value != Constants.getConnected()){
-                            ConnectionHandler.setConnectionStatus(Constants.getConnected())
+                        if(hasPeerExited.value == false){
+                            lastReceiveTime = System.currentTimeMillis()
+                            Log.d("UDPReceiver", "Received keep alive message")
+                        }else{
+                            Log.d("UDPReceiver", "Received keep alive message And Ignored")
                         }
-                        Log.d("UDPReceiver", "Received keep alive message")
                     } else {
                         Log.d("UDPReceiver", "Message received from peer")
                         Database.getDatabase(context).dao().addData(Data(System.currentTimeMillis(), receivedData, 1))
