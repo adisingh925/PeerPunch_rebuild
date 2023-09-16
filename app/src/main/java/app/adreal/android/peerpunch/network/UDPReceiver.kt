@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import app.adreal.android.peerpunch.database.Database
 import app.adreal.android.peerpunch.model.Data
 import app.adreal.android.peerpunch.util.Constants
+import com.google.gson.Gson
 import de.javawi.jstun.attribute.MappedAddress
 import de.javawi.jstun.attribute.MessageAttributeInterface
 import de.javawi.jstun.header.MessageHeader
@@ -22,7 +23,7 @@ class UDPReceiver {
     companion object {
 
         private val hasPeerExited = MutableLiveData(true)
-        var lastReceiveTime : Long = 0
+        var lastReceiveTime: Long = 0
 
         fun getHasPeerExited(): MutableLiveData<Boolean> {
             return hasPeerExited
@@ -40,8 +41,6 @@ class UDPReceiver {
                         SocketHandler.UDPSocket.receive(datagramPacket)
                     }
 
-                    val receivedData = String(datagramPacket.data, 0, datagramPacket.data.indexOf(0))
-
                     val messageType = ((datagramPacket.data[0].toInt() shl 8) or datagramPacket.data[1].toInt()).toShort()
 
                     if (messageType == 0x0101.toShort()) {
@@ -56,23 +55,30 @@ class UDPReceiver {
                         } catch (e: Exception) {
                             Log.d("UDPReceiver", "Error parsing UDP binding packet: ${e.message}")
                         }
-                    } else if (receivedData == Constants.getExitChatString()) {
-                        if(hasPeerExited.value == false){
-                            Log.d("UDPReceiver", "Exit request received")
-                            hasPeerExited.postValue(true)
-                        }else{
-                            Log.d("UDPReceiver", "Exit request received And Ignored")
-                        }
-                    } else if (receivedData == Constants.getConnectionEstablishString()) {
-                        if(hasPeerExited.value == false){
-                            lastReceiveTime = System.currentTimeMillis()
-                            Log.d("UDPReceiver", "Received keep alive message")
-                        }else{
-                            Log.d("UDPReceiver", "Received keep alive message And Ignored")
-                        }
                     } else {
-                        Log.d("UDPReceiver", "Message received from peer")
-                        Database.getDatabase(context).dao().addData(Data(System.currentTimeMillis(), receivedData, 1))
+                        val receivedData = String(datagramPacket.data, 0, datagramPacket.data.indexOf(0))
+                        val parsedData = Gson().fromJson(receivedData, Data::class.java)
+                        val message = parsedData.message
+
+                        if (message == Constants.getExitChatString()) {
+                            if (hasPeerExited.value == false) {
+                                Log.d("UDPReceiver", "Exit request received")
+                                hasPeerExited.postValue(true)
+                            } else {
+                                Log.d("UDPReceiver", "Exit request received And Ignored")
+                            }
+                        } else if (message == Constants.getConnectionEstablishString()) {
+                            if (hasPeerExited.value == false) {
+                                lastReceiveTime = System.currentTimeMillis()
+                                Log.d("UDPReceiver", "Received keep alive message")
+                            } else {
+                                Log.d("UDPReceiver", "Received keep alive message And Ignored")
+                            }
+                        } else {
+                            Log.d("UDPReceiver", "Message received from peer")
+                            parsedData.messageId = System.currentTimeMillis()
+                            Database.getDatabase(context).dao().addData(parsedData)
+                        }
                     }
                 }
             }

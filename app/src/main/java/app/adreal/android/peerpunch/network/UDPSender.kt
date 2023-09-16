@@ -3,7 +3,9 @@ package app.adreal.android.peerpunch.network
 import android.os.CountDownTimer
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import app.adreal.android.peerpunch.model.Data
 import app.adreal.android.peerpunch.util.Constants
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,7 +40,8 @@ class UDPSender {
                 val chunks = message.chunked(256)
 
                 for (chunk in chunks) {
-                    val byteArrayData = chunk.toByteArray()
+
+                    val byteArrayData = Gson().toJson(Data(System.currentTimeMillis(), chunk, 1)).toByteArray()
 
                     val datagramPacket = DatagramPacket(
                         byteArrayData,
@@ -48,6 +51,7 @@ class UDPSender {
                         },
                         port
                     )
+
                     withContext(Dispatchers.IO) {
                         try {
                             SocketHandler.UDPSocket.send(datagramPacket)

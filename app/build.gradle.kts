@@ -69,4 +69,5 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-perf-ktx")
+    implementation("com.google.code.gson:gson:2.9.0")
 }

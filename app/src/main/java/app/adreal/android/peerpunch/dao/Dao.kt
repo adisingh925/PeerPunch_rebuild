@@ -13,7 +13,7 @@ interface Dao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addData(data: Data)
 
-    @Query("SELECT * from Data")
+    @Query("SELECT * from Data order by messageId ASC")
     fun readAllData(): LiveData<List<Data>>
 
     @Query("delete from Data")
