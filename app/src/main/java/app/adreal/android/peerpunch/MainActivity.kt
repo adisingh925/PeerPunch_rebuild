@@ -1,10 +1,8 @@
 package app.adreal.android.peerpunch
 
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import app.adreal.android.peerpunch.databinding.ActivityMainBinding

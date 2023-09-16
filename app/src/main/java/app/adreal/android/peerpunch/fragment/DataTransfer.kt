@@ -77,7 +77,16 @@ class DataTransfer : Fragment() {
 
         UDPReceiver.getIsECDHReceived().observe(viewLifecycleOwner){
             if (it) {
-                UDPSender.ECDHTimer.cancel()
+//                UDPSender.ECDHTimer.cancel()
+//                UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
+//                UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
+//                UDPSender.keepAliveTimer.start()
+            }
+        }
+
+        UDPSender.getIsECDHTimerFinished().observe(viewLifecycleOwner){
+            if (it) {
+                Log.d("DataTransfer", "ECDH Timer Finished")
                 UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
                 UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
                 UDPSender.keepAliveTimer.start()
@@ -122,6 +131,7 @@ class DataTransfer : Fragment() {
             }
 
             if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 10000) {
+                Log.d("DataTransfer", "Connection Timeout")
                 UDPReceiver.setHasPeerExited(true)
             }
         }
@@ -130,6 +140,7 @@ class DataTransfer : Fragment() {
             if (it) {
                 Log.d("DataTransfer", "Terminating Connection")
                 UDPSender.keepAliveTimer.cancel()
+                UDPSender.ECDHTimer.cancel()
                 UDPSender.sendUDPMessage(Constants.getExitChatString(), receiverIP, receiverPORT)
                 ConnectionHandler.setConnectionStatus(Constants.getDisconnected())
                 ((activity) as MainActivity).updateStatusBarColor(
@@ -188,6 +199,7 @@ class DataTransfer : Fragment() {
     override fun onStart() {
         super.onStart()
         ConnectionHandler.setConnectionStatus(Constants.getConnecting())
+        UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
         UDPSender.ECDHTimer.start()
     }
 }

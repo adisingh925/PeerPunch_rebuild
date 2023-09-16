@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import app.adreal.android.peerpunch.R
 import app.adreal.android.peerpunch.databinding.FragmentHomeBinding
+import app.adreal.android.peerpunch.network.ConnectionHandler
 import app.adreal.android.peerpunch.network.IPHandler
 import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPSender
@@ -79,6 +80,7 @@ class Home : Fragment() {
             if(checkFailed == 0){
                 UDPReceiver.setHasPeerExited(false)
                 UDPReceiver.setIsECDHReceived(false)
+                UDPSender.setIsECDHTimerFinished(false)
                 Log.d("Navigating","Navigating from Home to DataTransfer")
                 findNavController().navigate(R.id.action_home2_to_dataTransfer)
             }

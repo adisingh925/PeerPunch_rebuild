@@ -6,7 +6,7 @@ import app.adreal.android.peerpunch.util.Constants
 class ConnectionHandler
 {
     companion object{
-        private val connectionStatus = MutableLiveData<Int>(Constants.getDisconnected())
+        private val connectionStatus = MutableLiveData(Constants.getDisconnected())
 
         fun setConnectionStatus(status: Int){
             connectionStatus.postValue(status)

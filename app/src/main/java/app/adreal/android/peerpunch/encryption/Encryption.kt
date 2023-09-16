@@ -1,9 +1,7 @@
 package app.adreal.android.peerpunch.encryption
 
-import android.os.Build
 import android.security.keystore.KeyProperties
 import android.util.Log
-import androidx.annotation.RequiresApi
 import app.adreal.android.peerpunch.model.EncryptedData
 import app.adreal.android.peerpunch.storage.SharedPreferences
 import kotlinx.coroutines.CoroutineScope
@@ -32,13 +30,12 @@ import javax.crypto.Mac
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-@RequiresApi(Build.VERSION_CODES.O)
 object Encryption {
 
     const val ECDH_PUBLIC = "ECDHPublic"
-    const val ECDH_PRIVATE = "ECDHPrivate"
-    const val ELLIPTIC_CURVE_ALGORITHM = "ECDH"
-    const val CURVE_NAME = "secp256r1"
+    private const val ECDH_PRIVATE = "ECDHPrivate"
+    private const val ELLIPTIC_CURVE_ALGORITHM = "ECDH"
+    private const val CURVE_NAME = "secp256r1"
     private const val AES_ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
     private const val BLOCK_MODE_AES = KeyProperties.BLOCK_MODE_CBC
     private const val PADDING_AES = KeyProperties.ENCRYPTION_PADDING_PKCS7

@@ -1,7 +1,6 @@
 package app.adreal.android.peerpunch.network
 
 import android.content.Context
-import android.os.CountDownTimer
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import app.adreal.android.peerpunch.database.Database
@@ -69,47 +68,61 @@ class UDPReceiver {
                             Log.d("UDPReceiver", "Error parsing UDP binding packet: ${e.message}")
                         }
                     } else {
-                        val receivedData = String(datagramPacket.data, 0, datagramPacket.data.indexOf(0))
-                        Log.d("UDPReceiver", "Received data: $receivedData")
+                        try {
+                            val receivedData = String(datagramPacket.data, 0, datagramPacket.data.indexOf(0))
+                            Log.d("UDPReceiver", "Received data: $receivedData")
 
-                        if (isECDHReceived.value == false) {
-                            try {
-                                val parsedData = Gson().fromJson(receivedData, ECDHPublicSend::class.java)
-                                Encryption.generateECDHSecret(parsedData.publicKey)
-                            } catch (e: Exception) {
-                                Log.d("UDPReceiver", "Error parsing ECDH packet: ${e.message}")
-                            } finally {
-                                isECDHReceived.postValue(true)
-                            }
-                        } else {
-                            val parsedCipherData = Gson().fromJson(receivedData, CipherDataSend::class.java)
+                            if (isECDHReceived.value == false) {
+                                try {
+                                    val parsedData = Gson().fromJson(receivedData, ECDHPublicSend::class.java)
+                                    Encryption.generateECDHSecret(parsedData.publicKey)
+                                } catch (e: Exception) {
+                                    Log.d("UDPReceiver", "Error parsing ECDH packet: ${e.message}")
+                                } finally {
+                                    isECDHReceived.postValue(true)
+                                }
+                            } else {
+                                val parsedCipherData = Gson().fromJson(receivedData, CipherDataSend::class.java)
 
-                            val message = Encryption.decryptUsingSymmetricEncryption(
-                                Base64.getDecoder().decode(parsedCipherData.cipherText),
-                                Base64.getDecoder().decode(parsedCipherData.iv)
-                            )
+                                val message = Encryption.decryptUsingSymmetricEncryption(
+                                    Base64.getDecoder().decode(parsedCipherData.cipherText),
+                                    Base64.getDecoder().decode(parsedCipherData.iv)
+                                )
 
-                            if(Encryption.compareMessageAndHMAC(message, parsedCipherData.hash)){
-                                Log.d("UDPReceiver", "HMAC Successfully Matched")
-                                if (message == Constants.getExitChatString()) {
-                                    if (hasPeerExited.value == false) {
-                                        Log.d("UDPReceiver", "Exit request received")
-                                        hasPeerExited.postValue(true)
+                                if (Encryption.compareMessageAndHMAC(
+                                        message,
+                                        parsedCipherData.hash
+                                    )
+                                ) {
+                                    Log.d("UDPReceiver", "HMAC Successfully Matched")
+                                    if (message == Constants.getExitChatString()) {
+                                        if (hasPeerExited.value == false) {
+                                            Log.d("UDPReceiver", "Exit request received")
+                                            setHasPeerExited(true)
+                                        } else {
+                                            Log.d(
+                                                "UDPReceiver",
+                                                "Exit request received And Ignored"
+                                            )
+                                        }
+                                    } else if (message == Constants.getConnectionEstablishString()) {
+                                        if (hasPeerExited.value == false) {
+                                            lastReceiveTime = System.currentTimeMillis()
+                                            Log.d("UDPReceiver", "Received keep alive message")
+                                        } else {
+                                            Log.d(
+                                                "UDPReceiver",
+                                                "Received keep alive message And Ignored"
+                                            )
+                                        }
                                     } else {
-                                        Log.d("UDPReceiver", "Exit request received And Ignored")
+                                        Log.d("UDPReceiver", "Message received from peer")
+                                        Database.getDatabase(context).dao().addData(Data(System.currentTimeMillis(), message, 1))
                                     }
-                                } else if (message == Constants.getConnectionEstablishString()) {
-                                    if (hasPeerExited.value == false) {
-                                        lastReceiveTime = System.currentTimeMillis()
-                                        Log.d("UDPReceiver", "Received keep alive message")
-                                    } else {
-                                        Log.d("UDPReceiver", "Received keep alive message And Ignored")
-                                    }
-                                } else {
-                                    Log.d("UDPReceiver", "Message received from peer")
-                                    Database.getDatabase(context).dao().addData(Data(System.currentTimeMillis(), message, 1))
                                 }
                             }
+                        } catch (e: Exception) {
+                            Log.d("UDPReceiver", "Some Error Has Occurred : ${e.message}")
                         }
                     }
                 }

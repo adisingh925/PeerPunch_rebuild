@@ -31,6 +31,16 @@ class UDPSender {
         val timeLeft = MutableLiveData<Long>()
         var ECDHTimeLeft = MutableLiveData<Long>()
 
+        private var isECDHTimerFinished = MutableLiveData(false)
+
+        fun getIsECDHTimerFinished(): MutableLiveData<Boolean> {
+            return isECDHTimerFinished
+        }
+
+        fun setIsECDHTimerFinished(value: Boolean) {
+            isECDHTimerFinished.postValue(value)
+        }
+
         fun configureKeepAliveTimer(ip: String, port: Int) {
             keepAliveTimer = object : CountDownTimer(3600000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
@@ -39,13 +49,14 @@ class UDPSender {
                 }
 
                 override fun onFinish() {
+                    Log.d("UDPSender", "Keep alive timer finished")
                     UDPReceiver.setHasPeerExited(true)
                 }
             }
         }
 
         fun configureECDHTimer(ip: String, port: Int) {
-            ECDHTimer = object : CountDownTimer(3600000, 1000) {
+            ECDHTimer = object : CountDownTimer(5000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
                     Log.d(
                         "UDPSender",
@@ -71,7 +82,7 @@ class UDPSender {
                 }
 
                 override fun onFinish() {
-                    UDPReceiver.setHasPeerExited(true)
+                    isECDHTimerFinished.postValue(true)
                 }
             }
         }
