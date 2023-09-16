@@ -56,8 +56,9 @@ class DataTransfer : Fragment() {
         UDPSender.configureKeepAliveTimer()
         ((activity) as MainActivity).updateStatusBarColor(
             resources.getString(R.color.defaultBackground),
-            "#00252e"
+            resources.getString(R.color.darkNavigationBarColor)
         )
+
         binding.toolbar.title = IPHandler.receiverIP.value + " : " + IPHandler.receiverPort.value
 
         binding.toolbar.setNavigationOnClickListener {
