@@ -90,16 +90,4 @@ class Home : Fragment() {
 
         return binding.root
     }
-
-    override fun onResume() {
-        super.onResume()
-        val bouncyCastleProvider = Security.getProvider("BC")
-        if (bouncyCastleProvider == null) {
-            Log.d("Security", "Bouncy Castle provider not found")
-            Encryption.addBouncyCastleProvider()
-        } else {
-            Log.d("Security", "Bouncy Castle provider found")
-            Encryption.generateECDHKeyPair()
-        }
-    }
 }

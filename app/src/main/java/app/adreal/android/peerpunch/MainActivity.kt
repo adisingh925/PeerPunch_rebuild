@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
 
         SharedPreferences.init(this)
         mainActivityViewModel.intiStartupClasses(this)
+        mainActivityViewModel.generateKeys()
     }
 
     fun updateStatusBarColor(color: String?, navigationBarColor : String) {
