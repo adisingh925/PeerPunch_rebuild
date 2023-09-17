@@ -16,6 +16,6 @@ class MainActivityViewModel : ViewModel() {
     }
 
     fun generateKeyPair() {
-        Encryption.addBouncyCastleProvider()
+
     }
 }
