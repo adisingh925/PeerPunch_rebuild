@@ -93,6 +93,11 @@ class Home : Fragment() {
     override fun onResume() {
         Log.d("Home","onResume")
         super.onResume()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("Home","onStart")
         Encryption.addBouncyCastleProvider()
     }
 }

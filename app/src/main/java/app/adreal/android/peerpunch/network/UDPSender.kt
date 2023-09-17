@@ -54,20 +54,13 @@ object UDPSender {
             override fun onTick(millisUntilFinished: Long) {
                 Log.d(
                     "UDPSender",
-                    "Sending ECDH public key : ${
-                        SharedPreferences.read(
-                            Encryption.ECDH_PUBLIC,
-                            ""
-                        )
-                    }"
+                    "Sending ECDH public key : ${Encryption.ECDH_PUBLIC}"
                 )
 
                 sendUDPMessage(
                     Gson().toJson(
                         ECDHPublicSend(
-                            SharedPreferences.read(
-                                Encryption.ECDH_PUBLIC, ""
-                            ).toString()
+                            Encryption.ECDH_PUBLIC
                         )
                     ).toByteArray(), ip, port
                 )
