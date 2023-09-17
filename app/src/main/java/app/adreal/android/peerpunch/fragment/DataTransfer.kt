@@ -76,10 +76,12 @@ class DataTransfer : Fragment() {
         }
 
         UDPReceiver.getIsECDHReceived().observe(viewLifecycleOwner){
-            if (it) {
-                UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
-                UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
-                UDPSender.keepAliveTimer.start()
+            if(UDPReceiver.lastReceiveTime == 0L){
+                if (it) {
+                    UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
+                    UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
+                    UDPSender.keepAliveTimer.start()
+                }
             }
         }
 
@@ -208,7 +210,10 @@ class DataTransfer : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        ConnectionHandler.setConnectionStatus(Constants.getExchangingKeys())
-        UDPSender.ECDHTimer.start()
+        Log.d("DataTransfer", "onStart")
+        if(UDPReceiver.lastReceiveTime == 0L){
+            ConnectionHandler.setConnectionStatus(Constants.getExchangingKeys())
+            UDPSender.ECDHTimer.start()
+        }
     }
 }

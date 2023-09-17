@@ -83,6 +83,7 @@ class Home : Fragment() {
                 UDPReceiver.setHasPeerExited(false)
                 UDPReceiver.setIsECDHReceived(false)
                 UDPSender.setIsECDHTimerFinished(false)
+                UDPReceiver.lastReceiveTime = 0
                 Log.d("Navigating","Navigating from Home to DataTransfer")
                 findNavController().navigate(R.id.action_home2_to_dataTransfer)
             }
