@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import app.adreal.android.peerpunch.R
 import app.adreal.android.peerpunch.databinding.FragmentHomeBinding
+import app.adreal.android.peerpunch.encryption.Encryption
 import app.adreal.android.peerpunch.network.IPHandler
 import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPSender
@@ -87,5 +88,10 @@ class Home : Fragment() {
         }
 
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Encryption.addBouncyCastleProvider()
     }
 }

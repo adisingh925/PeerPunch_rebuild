@@ -13,15 +13,4 @@ class MainActivityViewModel : ViewModel() {
         IPHandler.privateIP.postValue(IPHandler.getIPAddress())
         SocketHandler.initUDPSocket(context)
     }
-
-    fun generateKeys(){
-        val bouncyCastleProvider = Security.getProvider("BC")
-        if (bouncyCastleProvider == null) {
-            Log.d("Security", "Bouncy Castle provider not found")
-            Encryption.addBouncyCastleProvider()
-        } else {
-            Log.d("Security", "Bouncy Castle provider found")
-            Encryption.generateECDHKeyPair()
-        }
-    }
 }
