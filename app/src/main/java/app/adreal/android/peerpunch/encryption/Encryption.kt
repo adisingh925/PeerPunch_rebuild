@@ -4,6 +4,9 @@ import android.security.keystore.KeyProperties
 import android.util.Log
 import app.adreal.android.peerpunch.model.EncryptedData
 import app.adreal.android.peerpunch.storage.SharedPreferences
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.generators.HKDFBytesGenerator
 import org.bouncycastle.crypto.params.HKDFParameters
@@ -26,6 +29,7 @@ import javax.crypto.KeyAgreement
 import javax.crypto.Mac
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
+import kotlin.coroutines.coroutineContext
 
 object Encryption {
 
@@ -44,8 +48,20 @@ object Encryption {
         return ECDH_PUBLIC
     }
 
+    fun isSymmetricKeyEmpty(): Boolean {
+        return getSymmetricKey().isEmpty()
+    }
+
+    fun setSymmetricKey(value: String) {
+        SYMMETRIC_KEY = value
+    }
+
+    private fun getSymmetricKey(): String {
+        return SYMMETRIC_KEY
+    }
+
     fun addBouncyCastleProvider() {
-        Log.d("Encryption", "Generating KeyPair")
+        Log.d("Encryption", "Adding BouncyCastle provider")
         Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME)
         Security.addProvider(BouncyCastleProvider())
         generateECDHKeyPair()
@@ -55,6 +71,7 @@ object Encryption {
      * This function will generate ECDH key pair
      */
     private fun generateECDHKeyPair() {
+        Log.d("Encryption", "Generating ECDH key pair")
         val ecSpec = ECNamedCurveTable.getParameterSpec(CURVE_NAME)
         val keyGen = KeyPairGenerator.getInstance(ELLIPTIC_CURVE_ALGORITHM, BouncyCastleProvider())
         keyGen.initialize(ecSpec, SecureRandom())
@@ -62,6 +79,7 @@ object Encryption {
     }
 
     private fun storeECDHKeyPair(keyPair: KeyPair) {
+        Log.d("Encryption", "Storing ECDH key pair")
         ECDH_PUBLIC = Base64.getEncoder().encodeToString(keyPair.public.encoded)
         ECDH_PRIVATE = Base64.getEncoder().encodeToString(keyPair.private.encoded)
     }
@@ -71,12 +89,16 @@ object Encryption {
      * i.e symmetric AES key
      */
     fun generateECDHSecret(publicSecret: String) {
-        Log.d("Encryption", "Generating ECDH secret")
-        val publicKey = getECDHPublicKeyFromBase64String(publicSecret)
-        val privateKey = getECDHPrivateKeyFromBase64String()
-        val sharedSecret = getECDHSharedSecret(publicKey, privateKey)
-        val aesKey = getAESKeyFromSharedSecret(sharedSecret)
-        SYMMETRIC_KEY = Base64.getEncoder().encodeToString(aesKey.encoded)
+        try {
+            Log.d("Encryption", "Generating ECDH secret")
+            val publicKey = getECDHPublicKeyFromBase64String(publicSecret)
+            val privateKey = getECDHPrivateKeyFromBase64String()
+            val sharedSecret = getECDHSharedSecret(publicKey, privateKey)
+            val aesKey = getAESKeyFromSharedSecret(sharedSecret)
+            setSymmetricKey(Base64.getEncoder().encodeToString(aesKey.encoded))
+        } catch (e: Exception) {
+            Log.d("Encryption", "Error generating ECDH secret: ${e.message}")
+        }
     }
 
     /**
@@ -104,10 +126,12 @@ object Encryption {
      * This function take public key and private key to generate shared secret
      */
     private fun getECDHSharedSecret(publicKey: ECPublicKey, privateKey: ECPrivateKey): ByteArray {
-        val keyAgreement = KeyAgreement.getInstance(ELLIPTIC_CURVE_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME)
+        val keyAgreement =
+            KeyAgreement.getInstance(ELLIPTIC_CURVE_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME)
         keyAgreement.init(privateKey, SecureRandom())
         val keyFactory = KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME)
-        val ecPublicKey = keyFactory.generatePublic(X509EncodedKeySpec(publicKey.encoded)) as ECPublicKey
+        val ecPublicKey =
+            keyFactory.generatePublic(X509EncodedKeySpec(publicKey.encoded)) as ECPublicKey
         keyAgreement.doPhase(ecPublicKey, true)
         return keyAgreement.generateSecret()
     }
@@ -177,7 +201,7 @@ object Encryption {
      */
     private fun getStoredSymmetricEncryptionKey(): SecretKeySpec {
         return SecretKeySpec(
-            Base64.getDecoder().decode(SYMMETRIC_KEY), AES_ALGORITHM
+            Base64.getDecoder().decode(getSymmetricKey()), AES_ALGORITHM
         )
     }
 }

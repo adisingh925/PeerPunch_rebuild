@@ -16,8 +16,12 @@ import app.adreal.android.peerpunch.encryption.Encryption
 import app.adreal.android.peerpunch.network.IPHandler
 import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPSender
+import app.adreal.android.peerpunch.storage.SharedPreferences
 import app.adreal.android.peerpunch.util.Constants
 import app.adreal.android.peerpunch.viewmodel.HomeFragmentViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class Home : Fragment() {
 
@@ -82,6 +86,7 @@ class Home : Fragment() {
                 UDPReceiver.setIsECDHReceived(false)
                 UDPSender.setIsECDHTimerFinished(false)
                 UDPReceiver.lastReceiveTime = 0
+                Encryption.setSymmetricKey("")
                 Log.d("Navigating","Navigating from Home to DataTransfer")
                 findNavController().navigate(R.id.action_home2_to_dataTransfer)
             }
@@ -90,14 +95,13 @@ class Home : Fragment() {
         return binding.root
     }
 
-    override fun onResume() {
-        Log.d("Home","onResume")
-        super.onResume()
-    }
-
     override fun onStart() {
         super.onStart()
         Log.d("Home","onStart")
-        Encryption.addBouncyCastleProvider()
+        CoroutineScope(Dispatchers.IO).launch {
+            Encryption.addBouncyCastleProvider()
+        }.invokeOnCompletion {
+            Log.d("Encryption", "Keypair successfully generated")
+        }
     }
 }
