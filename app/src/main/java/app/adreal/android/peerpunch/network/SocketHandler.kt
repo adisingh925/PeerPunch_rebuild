@@ -8,21 +8,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.DatagramSocket
 
-class SocketHandler {
+object SocketHandler {
 
-    companion object {
-        lateinit var UDPSocket: DatagramSocket
+    lateinit var UDPSocket: DatagramSocket
 
-        fun initUDPSocket(context: Context) {
-            try {
-                UDPSocket = DatagramSocket(Constants.getUdpPort())
-                if (this::UDPSocket.isInitialized) {
-                    UDPReceiver.startUDPReceiver(context)
-                    UDPStun.sendUDPBindingRequest()
-                }
-            } catch (e: Exception) {
-                Log.e("SocketHandler", "Error creating UDP socket: ${e.message}")
+    fun initUDPSocket(context: Context) {
+        try {
+            UDPSocket = DatagramSocket(Constants.getUdpPort())
+            if (this::UDPSocket.isInitialized) {
+                UDPReceiver.startUDPReceiver(context)
+                UDPStun.sendUDPBindingRequest()
             }
+        } catch (e: Exception) {
+            Log.e("SocketHandler", "Error creating UDP socket: ${e.message}")
         }
     }
 }

@@ -1,51 +1,50 @@
 package app.adreal.android.peerpunch.util
 
-class Constants {
-    companion object {
-        private const val CONNECTION_ESTABLISH_STRING = "#$%*#)$%*#)%#%#"
-        private const val EXIT_CHAT = "EXIT_CHAT"
-        private const val UDP_PORT = 50001
-        private const val LOOPBACK_ADDRESS = "127.0.0.1"
-        private const val CONNECTING = 0
-        private const val CONNECTED = 1
-        private const val DISCONNECTED = 2
-        private const val EXCHANGING_KEYS = 3
-        private const val GENERATING_AES_KEY = 4
+object Constants {
 
-        fun getGeneratingAesKey(): Int {
-            return GENERATING_AES_KEY
-        }
+    private const val CONNECTION_ESTABLISH_STRING = "#$%*#)$%*#)%#%#"
+    private const val EXIT_CHAT = "EXIT_CHAT"
+    private const val UDP_PORT = 50001
+    private const val LOOPBACK_ADDRESS = "127.0.0.1"
+    private const val CONNECTING = 0
+    private const val CONNECTED = 1
+    private const val DISCONNECTED = 2
+    private const val EXCHANGING_KEYS = 3
+    private const val GENERATING_AES_KEY = 4
 
-        fun getExchangingKeys(): Int {
-            return EXCHANGING_KEYS
-        }
+    fun getGeneratingAesKey(): Int {
+        return GENERATING_AES_KEY
+    }
 
-        fun getConnecting(): Int {
-            return CONNECTING
-        }
+    fun getExchangingKeys(): Int {
+        return EXCHANGING_KEYS
+    }
 
-        fun getConnected(): Int {
-            return CONNECTED
-        }
+    fun getConnecting(): Int {
+        return CONNECTING
+    }
 
-        fun getDisconnected(): Int {
-            return DISCONNECTED
-        }
+    fun getConnected(): Int {
+        return CONNECTED
+    }
 
-        fun getConnectionEstablishString(): String {
-            return CONNECTION_ESTABLISH_STRING
-        }
+    fun getDisconnected(): Int {
+        return DISCONNECTED
+    }
 
-        fun getExitChatString(): String {
-            return EXIT_CHAT
-        }
+    fun getConnectionEstablishString(): String {
+        return CONNECTION_ESTABLISH_STRING
+    }
 
-        fun getUdpPort(): Int {
-            return UDP_PORT
-        }
+    fun getExitChatString(): String {
+        return EXIT_CHAT
+    }
 
-        fun getLoopbackAddress(): String {
-            return LOOPBACK_ADDRESS
-        }
+    fun getUdpPort(): Int {
+        return UDP_PORT
+    }
+
+    fun getLoopbackAddress(): String {
+        return LOOPBACK_ADDRESS
     }
 }

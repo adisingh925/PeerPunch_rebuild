@@ -10,21 +10,19 @@ import kotlinx.coroutines.withContext
 import java.net.DatagramPacket
 import java.net.InetAddress
 
-class UDPStun {
+object UDPStun {
 
-    companion object {
-        private const val GOOGLE_STUN_SERVER_IP = "74.125.197.127"
-        private const val GOOGLE_STUN_SERVER_PORT = 19302
+    private const val GOOGLE_STUN_SERVER_IP = "74.125.197.127"
+    private const val GOOGLE_STUN_SERVER_PORT = 19302
 
-        fun sendUDPBindingRequest() {
-            CoroutineScope(Dispatchers.IO).launch {
-                val sendMH = MessageHeader(MessageHeaderInterface.MessageHeaderType.BindingRequest)
-                val changeRequest = ChangeRequest()
-                sendMH.addMessageAttribute(changeRequest)
-                val data = sendMH.bytes
+    fun sendUDPBindingRequest() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val sendMH = MessageHeader(MessageHeaderInterface.MessageHeaderType.BindingRequest)
+            val changeRequest = ChangeRequest()
+            sendMH.addMessageAttribute(changeRequest)
+            val data = sendMH.bytes
 
-                UDPSender.sendUDPMessage(data, GOOGLE_STUN_SERVER_IP, GOOGLE_STUN_SERVER_PORT)
-            }
+            UDPSender.sendUDPMessage(data, GOOGLE_STUN_SERVER_IP, GOOGLE_STUN_SERVER_PORT)
         }
     }
 }
