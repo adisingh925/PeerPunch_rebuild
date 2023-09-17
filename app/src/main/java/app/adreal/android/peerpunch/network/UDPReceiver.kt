@@ -25,7 +25,7 @@ class UDPReceiver {
 
     companion object {
 
-        private val hasPeerExited = MutableLiveData(true)
+        private val hasPeerExited = MutableLiveData(false)
         private var isECDHReceived = MutableLiveData(false)
         var lastReceiveTime: Long = 0
 
