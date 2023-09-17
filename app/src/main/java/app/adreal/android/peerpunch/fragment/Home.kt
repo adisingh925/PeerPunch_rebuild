@@ -12,14 +12,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import app.adreal.android.peerpunch.R
 import app.adreal.android.peerpunch.databinding.FragmentHomeBinding
-import app.adreal.android.peerpunch.encryption.Encryption
-import app.adreal.android.peerpunch.network.ConnectionHandler
 import app.adreal.android.peerpunch.network.IPHandler
 import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPSender
 import app.adreal.android.peerpunch.util.Constants
 import app.adreal.android.peerpunch.viewmodel.HomeFragmentViewModel
-import java.security.Security
 
 class Home : Fragment() {
 
