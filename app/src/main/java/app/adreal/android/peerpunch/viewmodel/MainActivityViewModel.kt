@@ -12,5 +12,6 @@ class MainActivityViewModel : ViewModel() {
     fun intiStartupClasses(context: Context) {
         IPHandler.privateIP.postValue(IPHandler.getIPAddress())
         SocketHandler.initUDPSocket(context)
+        Encryption.addBouncyCastleProvider()
     }
 }

@@ -89,9 +89,4 @@ class Home : Fragment() {
 
         return binding.root
     }
-
-    override fun onResume() {
-        super.onResume()
-        Encryption.addBouncyCastleProvider()
-    }
 }
