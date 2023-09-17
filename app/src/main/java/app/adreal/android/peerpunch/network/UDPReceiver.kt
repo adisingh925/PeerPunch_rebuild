@@ -51,17 +51,14 @@ object UDPReceiver {
                     SocketHandler.UDPSocket.receive(datagramPacket)
                 }
 
-                val messageType =
-                    ((datagramPacket.data[0].toInt() shl 8) or datagramPacket.data[1].toInt()).toShort()
+                val messageType = ((datagramPacket.data[0].toInt() shl 8) or datagramPacket.data[1].toInt()).toShort()
 
                 if (messageType == 0x0101.toShort()) {
                     Log.d("UDPReceiver", "Received UDP binding response")
                     try {
-                        val receiveMH =
-                            MessageHeader(MessageHeaderInterface.MessageHeaderType.BindingRequest)
+                        val receiveMH = MessageHeader(MessageHeaderInterface.MessageHeaderType.BindingRequest)
                         receiveMH.parseAttributes(datagramPacket.data)
-                        val mappedAddress =
-                            receiveMH.getMessageAttribute(MessageAttributeInterface.MessageAttributeType.MappedAddress) as MappedAddress
+                        val mappedAddress = receiveMH.getMessageAttribute(MessageAttributeInterface.MessageAttributeType.MappedAddress) as MappedAddress
 
                         IPHandler.publicIP.postValue(mappedAddress.address.toString())
                         IPHandler.publicPort.postValue(mappedAddress.port)
@@ -70,15 +67,13 @@ object UDPReceiver {
                     }
                 } else {
                     try {
-                        val receivedData =
-                            String(datagramPacket.data, 0, datagramPacket.data.indexOf(0))
+                        val receivedData = String(datagramPacket.data, 0, datagramPacket.data.indexOf(0))
                         Log.d("UDPReceiver", "Received data: $receivedData")
 
                         if (isECDHReceived.value == false) {
                             try {
                                 ConnectionHandler.setConnectionStatus(Constants.getGeneratingAesKey())
-                                val parsedData =
-                                    Gson().fromJson(receivedData, ECDHPublicSend::class.java)
+                                val parsedData = Gson().fromJson(receivedData, ECDHPublicSend::class.java)
                                 Encryption.generateECDHSecret(parsedData.publicKey)
                             } catch (e: Exception) {
                                 Log.d("UDPReceiver", "Error parsing ECDH packet: ${e.message}")
@@ -86,8 +81,7 @@ object UDPReceiver {
                                 isECDHReceived.postValue(true)
                             }
                         } else {
-                            val parsedCipherData =
-                                Gson().fromJson(receivedData, CipherDataSend::class.java)
+                            val parsedCipherData = Gson().fromJson(receivedData, CipherDataSend::class.java)
 
                             val message = Encryption.decryptUsingSymmetricEncryption(
                                 Base64.getDecoder().decode(parsedCipherData.cipherText),

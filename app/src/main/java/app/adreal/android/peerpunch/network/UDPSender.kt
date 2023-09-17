@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import app.adreal.android.peerpunch.encryption.Encryption
 import app.adreal.android.peerpunch.model.CipherDataSend
 import app.adreal.android.peerpunch.model.ECDHPublicSend
-import app.adreal.android.peerpunch.storage.SharedPreferences
 import app.adreal.android.peerpunch.util.Constants
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -66,13 +65,13 @@ object UDPSender {
             override fun onTick(millisUntilFinished: Long) {
                 Log.d(
                     "UDPSender",
-                    "Sending ECDH public key : ${Encryption.ECDH_PUBLIC}"
+                    "Sending ECDH public key : ${Encryption.getECDHPublicKey()}"
                 )
 
                 sendUDPMessage(
                     Gson().toJson(
                         ECDHPublicSend(
-                            Encryption.ECDH_PUBLIC
+                            Encryption.getECDHPublicKey()
                         )
                     ).toByteArray(), ip, port
                 )

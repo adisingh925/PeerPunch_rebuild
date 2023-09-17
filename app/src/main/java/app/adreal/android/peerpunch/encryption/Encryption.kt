@@ -29,8 +29,8 @@ import javax.crypto.spec.SecretKeySpec
 
 object Encryption {
 
-    var ECDH_PUBLIC = ""
-    private const val ECDH_PRIVATE = "ECDHPrivate"
+    private var ECDH_PUBLIC = ""
+    private var ECDH_PRIVATE = ""
     private const val ELLIPTIC_CURVE_ALGORITHM = "ECDH"
     private const val CURVE_NAME = "secp256r1"
     private const val AES_ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
@@ -38,7 +38,11 @@ object Encryption {
     private const val PADDING_AES = KeyProperties.ENCRYPTION_PADDING_PKCS7
     private const val TRANSFORMATION_AES = "$AES_ALGORITHM/$BLOCK_MODE_AES/$PADDING_AES"
     private const val HMAC_ALGORITHM = "HmacSHA256"
-    private const val SYMMETRIC_KEY = "symmetricKey"
+    private var SYMMETRIC_KEY = ""
+
+    fun getECDHPublicKey(): String {
+        return ECDH_PUBLIC
+    }
 
     fun addBouncyCastleProvider() {
         Log.d("Encryption", "Generating KeyPair")
@@ -59,11 +63,7 @@ object Encryption {
 
     private fun storeECDHKeyPair(keyPair: KeyPair) {
         ECDH_PUBLIC = Base64.getEncoder().encodeToString(keyPair.public.encoded)
-
-        SharedPreferences.write(
-            ECDH_PRIVATE,
-            Base64.getEncoder().encodeToString(keyPair.private.encoded)
-        )
+        ECDH_PRIVATE = Base64.getEncoder().encodeToString(keyPair.private.encoded)
     }
 
     /**
@@ -76,10 +76,7 @@ object Encryption {
         val privateKey = getECDHPrivateKeyFromBase64String()
         val sharedSecret = getECDHSharedSecret(publicKey, privateKey)
         val aesKey = getAESKeyFromSharedSecret(sharedSecret)
-        SharedPreferences.write(
-            SYMMETRIC_KEY,
-            Base64.getEncoder().encodeToString(aesKey.encoded)
-        )
+        SYMMETRIC_KEY = Base64.getEncoder().encodeToString(aesKey.encoded)
     }
 
     /**
@@ -96,7 +93,7 @@ object Encryption {
      * It will retrieve the private key from shared preferences using base64 string
      */
     private fun getECDHPrivateKeyFromBase64String(): ECPrivateKey {
-        val privateSecret = SharedPreferences.read(ECDH_PRIVATE, "")
+        val privateSecret = ECDH_PRIVATE
         val priKey = Base64.getDecoder().decode(privateSecret)
         val keySpec = PKCS8EncodedKeySpec(priKey)
         val keyFactory = KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME)
@@ -107,12 +104,10 @@ object Encryption {
      * This function take public key and private key to generate shared secret
      */
     private fun getECDHSharedSecret(publicKey: ECPublicKey, privateKey: ECPrivateKey): ByteArray {
-        val keyAgreement =
-            KeyAgreement.getInstance(ELLIPTIC_CURVE_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME)
+        val keyAgreement = KeyAgreement.getInstance(ELLIPTIC_CURVE_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME)
         keyAgreement.init(privateKey, SecureRandom())
         val keyFactory = KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME)
-        val ecPublicKey =
-            keyFactory.generatePublic(X509EncodedKeySpec(publicKey.encoded)) as ECPublicKey
+        val ecPublicKey = keyFactory.generatePublic(X509EncodedKeySpec(publicKey.encoded)) as ECPublicKey
         keyAgreement.doPhase(ecPublicKey, true)
         return keyAgreement.generateSecret()
     }
@@ -182,7 +177,7 @@ object Encryption {
      */
     private fun getStoredSymmetricEncryptionKey(): SecretKeySpec {
         return SecretKeySpec(
-            Base64.getDecoder().decode(SharedPreferences.read(SYMMETRIC_KEY, "")), AES_ALGORITHM
+            Base64.getDecoder().decode(SYMMETRIC_KEY), AES_ALGORITHM
         )
     }
 }
