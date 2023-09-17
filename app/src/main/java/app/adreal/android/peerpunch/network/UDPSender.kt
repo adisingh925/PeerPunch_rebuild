@@ -47,7 +47,7 @@ object UDPSender {
     }
 
     fun configureKeepAliveTimer(ip: String, port: Int) {
-        keepAliveTimer = object : CountDownTimer(3600000, 500) {
+        keepAliveTimer = object : CountDownTimer(3600000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 sendUDPMessage(Constants.getConnectionEstablishString(), ip, port)
                 timeLeft.postValue(millisUntilFinished)
@@ -61,7 +61,7 @@ object UDPSender {
     }
 
     fun configureECDHTimer(ip: String, port: Int) {
-        ECDHTimer = object : CountDownTimer(5000, 500) {
+        ECDHTimer = object : CountDownTimer(5000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 Log.d(
                     "UDPSender",

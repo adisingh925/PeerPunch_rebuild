@@ -46,11 +46,11 @@ class DataTransfer : Fragment() {
         LinearLayoutManager(context)
     }
 
-    private val receiverIP by lazy{
+    private val receiverIP by lazy {
         IPHandler.receiverIP.value!!
     }
 
-    private val receiverPORT by lazy{
+    private val receiverPORT by lazy {
         IPHandler.receiverPort.value!!
     }
 
@@ -75,7 +75,15 @@ class DataTransfer : Fragment() {
             UDPReceiver.setHasPeerExited(true)
         }
 
-        UDPReceiver.getIsECDHReceived().observe(viewLifecycleOwner){
+        UDPReceiver.getIsECDHReceived().observe(viewLifecycleOwner) {
+            if (UDPReceiver.lastReceiveTime == 0L) {
+                if (it) {
+                    ConnectionHandler.setConnectionStatus(Constants.getGeneratingAesKey())
+                }
+            }
+        }
+
+        UDPReceiver.getIsAESKeyGenerated().observe(viewLifecycleOwner) {
             if(UDPReceiver.lastReceiveTime == 0L){
                 if (it) {
                     UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
@@ -85,9 +93,9 @@ class DataTransfer : Fragment() {
             }
         }
 
-        UDPSender.getIsECDHTimerFinished().observe(viewLifecycleOwner){
+        UDPSender.getIsECDHTimerFinished().observe(viewLifecycleOwner) {
             if (it) {
-                if(UDPReceiver.getIsECDHReceived().value == false){
+                if (UDPReceiver.getIsECDHReceived().value == false) {
                     UDPReceiver.setHasPeerExited(true)
                 }
             }
@@ -128,7 +136,7 @@ class DataTransfer : Fragment() {
         }
 
         UDPSender.timeLeft.observe(viewLifecycleOwner) {
-            if(UDPReceiver.getIsECDHReceived().value == true){
+            if (UDPReceiver.getIsECDHReceived().value == true) {
                 if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) < 3000) {
                     if (ConnectionHandler.getConnectionStatus().value != Constants.getConnected()) {
                         ConnectionHandler.setConnectionStatus(Constants.getConnected())
@@ -167,7 +175,11 @@ class DataTransfer : Fragment() {
 
         binding.send.setOnClickListener {
             if (binding.messageInput.text.toString().isNotBlank()) {
-                UDPSender.sendUDPMessage(binding.messageInput.text.toString(), receiverIP, receiverPORT)
+                UDPSender.sendUDPMessage(
+                    binding.messageInput.text.toString(),
+                    receiverIP,
+                    receiverPORT
+                )
 
                 if (binding.messageInput.text.toString() == Constants.getExitChatString()) {
                     UDPReceiver.setHasPeerExited(true)
@@ -211,7 +223,7 @@ class DataTransfer : Fragment() {
     override fun onStart() {
         super.onStart()
         Log.d("DataTransfer", "onStart")
-        if(UDPReceiver.lastReceiveTime == 0L){
+        if (UDPReceiver.lastReceiveTime == 0L) {
             ConnectionHandler.setConnectionStatus(Constants.getExchangingKeys())
             UDPSender.ECDHTimer.start()
         }

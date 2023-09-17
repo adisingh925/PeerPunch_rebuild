@@ -25,6 +25,7 @@ object UDPReceiver {
 
     private val hasPeerExited = MutableLiveData(false)
     private var isECDHReceived = MutableLiveData(false)
+    private var isAESKeyGenerated = MutableLiveData(false)
     var lastReceiveTime: Long = 0
 
     fun getHasPeerExited(): MutableLiveData<Boolean> {
@@ -37,6 +38,14 @@ object UDPReceiver {
 
     fun getIsECDHReceived(): MutableLiveData<Boolean> {
         return isECDHReceived
+    }
+
+    fun getIsAESKeyGenerated(): MutableLiveData<Boolean> {
+        return isAESKeyGenerated
+    }
+
+    fun setIsAESKeyGenerated(value: Boolean) {
+        isAESKeyGenerated.postValue(value)
     }
 
     fun setIsECDHReceived(value: Boolean) {
@@ -73,13 +82,12 @@ object UDPReceiver {
                         if (isECDHReceived.value == false) {
                             try {
                                 isECDHReceived.postValue(true)
-                                ConnectionHandler.setConnectionStatus(Constants.getGeneratingAesKey())
                                 val parsedData = Gson().fromJson(receivedData, ECDHPublicSend::class.java)
                                 Encryption.generateECDHSecret(parsedData.publicKey)
                             } catch (e: Exception) {
                                 Log.d("UDPReceiver", "Error parsing ECDH packet: ${e.message}")
                             }finally {
-
+                                isAESKeyGenerated.postValue(true)
                             }
                         } else {
                             if(!Encryption.isSymmetricKeyEmpty()){

@@ -85,6 +85,7 @@ class Home : Fragment() {
                 UDPReceiver.setHasPeerExited(false)
                 UDPReceiver.setIsECDHReceived(false)
                 UDPSender.setIsECDHTimerFinished(false)
+                UDPReceiver.setIsAESKeyGenerated(false)
                 UDPReceiver.lastReceiveTime = 0
                 Encryption.setSymmetricKey("")
                 Log.d("Navigating","Navigating from Home to DataTransfer")
