@@ -79,7 +79,7 @@ object UDPReceiver {
                         val receivedData = String(datagramPacket.data, 0, datagramPacket.data.indexOf(0))
                         Log.d("UDPReceiver", "Received data: $receivedData")
 
-                        if (isECDHReceived.value == false) {
+                        if (isECDHReceived.value == false && receivedData.contains("publicKey")) {
                             try {
                                 isECDHReceived.postValue(true)
                                 val parsedData = Gson().fromJson(receivedData, ECDHPublicSend::class.java)
@@ -90,7 +90,7 @@ object UDPReceiver {
                                 isAESKeyGenerated.postValue(true)
                             }
                         } else {
-                            if(!Encryption.isSymmetricKeyEmpty()){
+                            if(!Encryption.isSymmetricKeyEmpty() && receivedData.contains("cipherText")){
                                 val parsedCipherData = Gson().fromJson(receivedData, CipherDataSend::class.java)
 
                                 val message = Encryption.decryptUsingSymmetricEncryption(
