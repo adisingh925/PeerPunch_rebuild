@@ -9,6 +9,16 @@ class Constants {
         private const val CONNECTING = 0
         private const val CONNECTED = 1
         private const val DISCONNECTED = 2
+        private const val EXCHANGING_KEYS = 3
+        private const val GENERATING_AES_KEY = 4
+
+        fun getGeneratingAesKey(): Int {
+            return GENERATING_AES_KEY
+        }
+
+        fun getExchangingKeys(): Int {
+            return EXCHANGING_KEYS
+        }
 
         fun getConnecting(): Int {
             return CONNECTING

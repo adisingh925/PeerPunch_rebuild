@@ -74,6 +74,7 @@ class UDPReceiver {
 
                             if (isECDHReceived.value == false) {
                                 try {
+                                    ConnectionHandler.setConnectionStatus(Constants.getGeneratingAesKey())
                                     val parsedData = Gson().fromJson(receivedData, ECDHPublicSend::class.java)
                                     Encryption.generateECDHSecret(parsedData.publicKey)
                                 } catch (e: Exception) {

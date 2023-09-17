@@ -83,6 +83,14 @@ class DataTransfer : Fragment() {
             }
         }
 
+        UDPSender.getIsECDHTimerFinished().observe(viewLifecycleOwner){
+            if (it) {
+                if(UDPReceiver.getIsECDHReceived().value == false){
+                    UDPReceiver.setHasPeerExited(true)
+                }
+            }
+        }
+
         ConnectionHandler.getConnectionStatus().observe(viewLifecycleOwner) {
             when (it) {
                 Constants.getConnecting() -> {
@@ -98,6 +106,16 @@ class DataTransfer : Fragment() {
                 Constants.getDisconnected() -> {
                     binding.toolbar.setSubtitleTextColor(Color.parseColor(resources.getString(R.color.red)))
                     binding.toolbar.subtitle = "Disconnected"
+                }
+
+                Constants.getExchangingKeys() -> {
+                    binding.toolbar.setSubtitleTextColor(Color.parseColor(resources.getString(R.color.yellow)))
+                    binding.toolbar.subtitle = "Exchanging Keys..."
+                }
+
+                Constants.getGeneratingAesKey() -> {
+                    binding.toolbar.setSubtitleTextColor(Color.parseColor(resources.getString(R.color.yellow)))
+                    binding.toolbar.subtitle = "Generating AES Key..."
                 }
             }
         }
@@ -190,7 +208,7 @@ class DataTransfer : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        ConnectionHandler.setConnectionStatus(Constants.getConnecting())
+        ConnectionHandler.setConnectionStatus(Constants.getExchangingKeys())
         UDPSender.ECDHTimer.start()
     }
 }
