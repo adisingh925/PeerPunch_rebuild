@@ -151,8 +151,8 @@ class DataTransfer : Fragment() {
         UDPReceiver.getHasPeerExited().observe(viewLifecycleOwner) {
             if (it) {
                 Log.d("DataTransfer", "Terminating Connection")
-                UDPSender.keepAliveTimer.cancel()
-                UDPSender.ECDHTimer.cancel()
+                UDPSender.cancelKeepAliveTimer()
+                UDPSender.cancelECDHTimer()
                 UDPSender.sendUDPMessage(Constants.getExitChatString(), receiverIP, receiverPORT)
                 ConnectionHandler.setConnectionStatus(Constants.getDisconnected())
                 ((activity) as MainActivity).updateStatusBarColor(
