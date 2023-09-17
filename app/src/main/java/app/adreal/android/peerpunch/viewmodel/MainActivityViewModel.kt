@@ -9,7 +9,6 @@ import app.adreal.android.peerpunch.network.SocketHandler
 class MainActivityViewModel : ViewModel() {
     fun intiStartupClasses(context: Context) {
         IPHandler.privateIP.postValue(IPHandler.getIPAddress())
-        Encryption.addBouncyCastleProvider()
         SocketHandler.initUDPSocket(context)
     }
 }

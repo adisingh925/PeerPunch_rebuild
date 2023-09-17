@@ -54,7 +54,7 @@ object Encryption {
     /**
      * This function will generate ECDH key pair
      */
-    private fun generateECDHKeyPair() {
+    fun generateECDHKeyPair() {
         CoroutineScope(Dispatchers.IO).launch {
             val ecSpec = ECNamedCurveTable.getParameterSpec(CURVE_NAME)
             val keyGen = KeyPairGenerator.getInstance(ELLIPTIC_CURVE_ALGORITHM, BouncyCastleProvider())
