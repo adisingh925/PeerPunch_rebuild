@@ -86,7 +86,7 @@ object UDPReceiver {
                                 Encryption.generateECDHSecret(parsedData.publicKey)
                             } catch (e: Exception) {
                                 Log.d("UDPReceiver", "Error parsing ECDH packet: ${e.message}")
-                            }finally {
+                            } finally {
                                 setIsAESKeyGenerated(true)
                             }
                         } else {
