@@ -87,6 +87,8 @@ class DataTransfer : Fragment() {
                 if (it) {
                     Log.d("DataTransfer", "ECDH public key received")
                     ConnectionHandler.setConnectionStatus(Constants.getGeneratingAesKey())
+                    TCPServer.startTCPServer()
+                    TCPClient.startTCPClient()
                 }
             }
         }
@@ -97,6 +99,7 @@ class DataTransfer : Fragment() {
                 TCPClient.initTCPInputStream()
                 TCPClient.initTCPOutputStream()
                 TCPClient.startTCPReceiver()
+                TCPClient.sendTCPData("hello from TCP")
 
                 binding.send.backgroundTintList = ColorStateList.valueOf(
                     Color.parseColor(
