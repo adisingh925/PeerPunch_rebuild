@@ -19,12 +19,7 @@ import java.util.Base64
 object UDPSender {
 
     lateinit var keepAliveTimer: CountDownTimer
-    lateinit var ECDHTimer: CountDownTimer
-
     val timeLeft = MutableLiveData<Long>()
-    var ECDHTimeLeft = MutableLiveData<Long>()
-
-    private var isECDHTimerFinished = MutableLiveData(false)
 
     fun cancelKeepAliveTimer() {
         if(this::keepAliveTimer.isInitialized){
@@ -32,55 +27,15 @@ object UDPSender {
         }
     }
 
-    fun cancelECDHTimer() {
-        if(this::ECDHTimer.isInitialized){
-            ECDHTimer.cancel()
-        }
-    }
-
-    fun getIsECDHTimerFinished(): MutableLiveData<Boolean> {
-        return isECDHTimerFinished
-    }
-
-    fun setIsECDHTimerFinished(value: Boolean) {
-        isECDHTimerFinished.postValue(value)
-    }
-
-    fun configureKeepAliveTimer(ip: String, port: Int) {
+    fun configureKeepAliveTimer() {
         keepAliveTimer = object : CountDownTimer(3600000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                sendUDPMessage(Constants.getConnectionEstablishString(), ip, port)
                 timeLeft.postValue(millisUntilFinished)
             }
 
             override fun onFinish() {
                 Log.d("UDPSender", "Keep alive timer finished")
                 UDPReceiver.setHasPeerExited(true)
-            }
-        }
-    }
-
-    fun configureECDHTimer(ip: String, port: Int) {
-        ECDHTimer = object : CountDownTimer(5000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                Log.d(
-                    "UDPSender",
-                    "Sending ECDH public key : ${Encryption.getECDHPublicKey()}"
-                )
-
-                sendUDPMessage(
-                    Gson().toJson(
-                        ECDHPublicSend(
-                            Encryption.getECDHPublicKey()
-                        )
-                    ).toByteArray(), ip, port
-                )
-
-                ECDHTimeLeft.postValue(millisUntilFinished)
-            }
-
-            override fun onFinish() {
-                isECDHTimerFinished.postValue(true)
             }
         }
     }

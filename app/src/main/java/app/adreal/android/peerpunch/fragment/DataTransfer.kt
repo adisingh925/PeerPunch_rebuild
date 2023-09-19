@@ -1,6 +1,7 @@
 package app.adreal.android.peerpunch.fragment
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -16,13 +17,19 @@ import app.adreal.android.peerpunch.MainActivity
 import app.adreal.android.peerpunch.R
 import app.adreal.android.peerpunch.adapter.ChatAdapter
 import app.adreal.android.peerpunch.databinding.FragmentDataTransferBinding
+import app.adreal.android.peerpunch.encryption.Encryption
 import app.adreal.android.peerpunch.model.Data
+import app.adreal.android.peerpunch.model.ECDHPublicSend
 import app.adreal.android.peerpunch.network.ConnectionHandler
 import app.adreal.android.peerpunch.network.IPHandler
+import app.adreal.android.peerpunch.network.SocketHandler
+import app.adreal.android.peerpunch.network.TCPClient
+import app.adreal.android.peerpunch.network.TCPServer
 import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPSender
 import app.adreal.android.peerpunch.util.Constants
 import app.adreal.android.peerpunch.viewmodel.DataTransferViewModel
+import com.google.gson.Gson
 
 class DataTransfer : Fragment() {
 
@@ -61,7 +68,7 @@ class DataTransfer : Fragment() {
     ): View {
 
         initRecycler()
-        UDPSender.configureECDHTimer(receiverIP, receiverPORT)
+        UDPSender.configureKeepAliveTimer()
 
         ((activity) as MainActivity).updateStatusBarColor(
             resources.getString(R.color.defaultBackground),
@@ -78,25 +85,32 @@ class DataTransfer : Fragment() {
         UDPReceiver.getIsECDHReceived().observe(viewLifecycleOwner) {
             if (UDPReceiver.lastReceiveTime == 0L) {
                 if (it) {
+                    Log.d("DataTransfer", "ECDH public key received")
                     ConnectionHandler.setConnectionStatus(Constants.getGeneratingAesKey())
                 }
             }
         }
 
-        UDPReceiver.getIsAESKeyGenerated().observe(viewLifecycleOwner) {
-            if(UDPReceiver.lastReceiveTime == 0L){
-                if (it) {
-                    UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
-                    UDPSender.configureKeepAliveTimer(receiverIP, receiverPORT)
-                    UDPSender.keepAliveTimer.start()
-                }
+        TCPClient.isTCPConnected.observe(viewLifecycleOwner) {
+            if (it) {
+                Log.d("DataTransfer", "TCP Connection Status: $it")
+                TCPClient.initTCPInputStream()
+                TCPClient.initTCPOutputStream()
+                TCPClient.startTCPReceiver()
+
+                binding.send.backgroundTintList = ColorStateList.valueOf(
+                    Color.parseColor(
+                        resources.getString(R.color.senderChatTcpGreen)
+                    )
+                )
             }
         }
 
-        UDPSender.getIsECDHTimerFinished().observe(viewLifecycleOwner) {
-            if (it) {
-                if (UDPReceiver.getIsECDHReceived().value == false) {
-                    UDPReceiver.setHasPeerExited(true)
+        UDPReceiver.getIsAESKeyGenerated().observe(viewLifecycleOwner) {
+            if (UDPReceiver.lastReceiveTime == 0L) {
+                if (it) {
+                    Log.d("DataTransfer", "AES Key Generated")
+                    UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
                 }
             }
         }
@@ -136,22 +150,53 @@ class DataTransfer : Fragment() {
         }
 
         UDPSender.timeLeft.observe(viewLifecycleOwner) {
-            if (UDPReceiver.getIsECDHReceived().value == true) {
-                if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) < 3000) {
-                    if (ConnectionHandler.getConnectionStatus().value != Constants.getConnected()) {
-                        ConnectionHandler.setConnectionStatus(Constants.getConnected())
+            if(it != -1L){
+                Log.d("DataTransfer", "Keep alive timer: $it")
+
+                if (UDPReceiver.getIsAESKeyGenerated().value == true) {
+                    UDPSender.sendUDPMessage(
+                        Constants.getConnectionEstablishString(),
+                        receiverIP,
+                        receiverPORT
+                    )
+
+                    if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) < 3000) {
+                        if (ConnectionHandler.getConnectionStatus().value != Constants.getConnected()) {
+                            ConnectionHandler.setConnectionStatus(Constants.getConnected())
+                            binding.send.isEnabled = true
+                        }
+                    }
+
+                    if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) >= 3000) {
+                        if (ConnectionHandler.getConnectionStatus().value != Constants.getConnecting()) {
+                            ConnectionHandler.setConnectionStatus(Constants.getConnecting())
+                            binding.send.isEnabled = false
+                        }
+                    }
+
+                    if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 10000) {
+                        Log.d("DataTransfer", "Connection Timeout")
+                        UDPReceiver.setHasPeerExited(true)
                     }
                 }
 
-                if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) >= 3000) {
-                    if (ConnectionHandler.getConnectionStatus().value != Constants.getConnecting()) {
-                        ConnectionHandler.setConnectionStatus(Constants.getConnecting())
-                    }
-                }
+                if ((3600000L - it) <= 5000) {
+                    Log.d(
+                        "UDPSender",
+                        "Sending ECDH public key : ${Encryption.getECDHPublicKey()}"
+                    )
 
-                if ((System.currentTimeMillis() - UDPReceiver.lastReceiveTime) > 10000) {
-                    Log.d("DataTransfer", "Connection Timeout")
-                    UDPReceiver.setHasPeerExited(true)
+                    UDPSender.sendUDPMessage(
+                        Gson().toJson(
+                            ECDHPublicSend(
+                                Encryption.getECDHPublicKey()
+                            )
+                        ).toByteArray(), receiverIP, receiverPORT
+                    )
+                } else if ((3600000L - it) > 5000) {
+                    if (UDPReceiver.getIsECDHReceived().value == false) {
+                        UDPReceiver.setHasPeerExited(true)
+                    }
                 }
             }
         }
@@ -160,7 +205,6 @@ class DataTransfer : Fragment() {
             if (it) {
                 Log.d("DataTransfer", "Terminating Connection")
                 UDPSender.cancelKeepAliveTimer()
-                UDPSender.cancelECDHTimer()
                 UDPSender.sendUDPMessage(Constants.getExitChatString(), receiverIP, receiverPORT)
                 ConnectionHandler.setConnectionStatus(Constants.getDisconnected())
                 ((activity) as MainActivity).updateStatusBarColor(
@@ -220,12 +264,14 @@ class DataTransfer : Fragment() {
         recyclerView.layoutManager = linearLayoutManager
     }
 
+    @SuppressLint("ResourceType")
     override fun onStart() {
         super.onStart()
         Log.d("DataTransfer", "onStart")
         if (UDPReceiver.lastReceiveTime == 0L) {
             ConnectionHandler.setConnectionStatus(Constants.getExchangingKeys())
-            UDPSender.ECDHTimer.start()
+            UDPSender.keepAliveTimer.start()
+            binding.send.backgroundTintList = ColorStateList.valueOf(Color.parseColor(resources.getString(R.color.senderChatBlue)))
         }
     }
 }

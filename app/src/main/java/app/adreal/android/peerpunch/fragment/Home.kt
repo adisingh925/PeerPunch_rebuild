@@ -14,6 +14,7 @@ import app.adreal.android.peerpunch.R
 import app.adreal.android.peerpunch.databinding.FragmentHomeBinding
 import app.adreal.android.peerpunch.encryption.Encryption
 import app.adreal.android.peerpunch.network.IPHandler
+import app.adreal.android.peerpunch.network.TCPClient
 import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPSender
 import app.adreal.android.peerpunch.storage.SharedPreferences
@@ -84,8 +85,9 @@ class Home : Fragment() {
             if(checkFailed == 0){
                 UDPReceiver.setHasPeerExited(false)
                 UDPReceiver.setIsECDHReceived(false)
-                UDPSender.setIsECDHTimerFinished(false)
                 UDPReceiver.setIsAESKeyGenerated(false)
+                TCPClient.isTCPConnected.postValue(false)
+                UDPSender.timeLeft.postValue(-1)
                 UDPReceiver.lastReceiveTime = 0
                 Encryption.setSymmetricKey("")
                 Log.d("Navigating","Navigating from Home to DataTransfer")

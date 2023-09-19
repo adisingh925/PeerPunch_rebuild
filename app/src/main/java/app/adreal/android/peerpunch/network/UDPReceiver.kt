@@ -87,10 +87,10 @@ object UDPReceiver {
                             } catch (e: Exception) {
                                 Log.d("UDPReceiver", "Error parsing ECDH packet: ${e.message}")
                             }finally {
-                                isAESKeyGenerated.postValue(true)
+                                setIsAESKeyGenerated(true)
                             }
                         } else {
-                            if(!Encryption.isSymmetricKeyEmpty() && receivedData.contains("cipherText")){
+                            if (!Encryption.isSymmetricKeyEmpty() && receivedData.contains("cipherText")) {
                                 val parsedCipherData = Gson().fromJson(receivedData, CipherDataSend::class.java)
 
                                 val message = Encryption.decryptUsingSymmetricEncryption(
@@ -126,11 +126,10 @@ object UDPReceiver {
                                         }
                                     } else {
                                         Log.d("UDPReceiver", "Message received from peer")
-                                        Database.getDatabase(context).dao()
-                                            .addData(Data(System.currentTimeMillis(), message, 1))
+                                        Database.getDatabase(context).dao().addData(Data(System.currentTimeMillis(), message, 1))
                                     }
                                 }
-                            }else{
+                            } else {
                                 Log.d("UDPReceiver", "Symmetric key is empty")
                             }
                         }
