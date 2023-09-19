@@ -14,8 +14,4 @@ class MainActivityViewModel : ViewModel() {
         IPHandler.privateIP.postValue(IPHandler.getIPAddress())
         SocketHandler.initSockets(context)
     }
-
-    fun generateKeyPair() {
-
-    }
 }
