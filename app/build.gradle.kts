@@ -72,4 +72,7 @@ dependencies {
     implementation("com.google.firebase:firebase-perf-ktx")
     implementation("com.google.code.gson:gson:2.9.0")
     implementation("com.madgag.spongycastle:bcpg-jdk15on:1.58.0.0")
+    implementation("com.madgag.spongycastle:core:1.58.0.0")
+    implementation("com.madgag.spongycastle:prov:1.58.0.0")
+    implementation("com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0")
 }

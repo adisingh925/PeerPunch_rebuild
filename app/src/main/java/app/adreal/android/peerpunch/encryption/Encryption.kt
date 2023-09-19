@@ -56,10 +56,14 @@ object Encryption {
     }
 
     fun addBouncyCastleProvider() {
-        Log.d("Encryption", "Adding BouncyCastle provider")
-        Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME)
-        Security.insertProviderAt(BouncyCastleProvider(), 1)
-        generateECDHKeyPair()
+        try {
+            Log.d("Encryption", "Adding BouncyCastle provider")
+            Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME)
+            Security.insertProviderAt(BouncyCastleProvider(), 1)
+            generateECDHKeyPair()
+        }catch (e: Exception) {
+            Log.d("Encryption", "Error adding BouncyCastle provider: ${e.message}")
+        }
     }
 
     /**
@@ -121,12 +125,10 @@ object Encryption {
      * This function take public key and private key to generate shared secret
      */
     private fun getECDHSharedSecret(publicKey: ECPublicKey, privateKey: ECPrivateKey): ByteArray {
-        val keyAgreement =
-            KeyAgreement.getInstance(ELLIPTIC_CURVE_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME)
+        val keyAgreement = KeyAgreement.getInstance(ELLIPTIC_CURVE_ALGORITHM, BouncyCastleProvider.PROVIDER_NAME)
         keyAgreement.init(privateKey, SecureRandom())
         val keyFactory = KeyFactory.getInstance("EC", BouncyCastleProvider.PROVIDER_NAME)
-        val ecPublicKey =
-            keyFactory.generatePublic(X509EncodedKeySpec(publicKey.encoded)) as ECPublicKey
+        val ecPublicKey = keyFactory.generatePublic(X509EncodedKeySpec(publicKey.encoded)) as ECPublicKey
         keyAgreement.doPhase(ecPublicKey, true)
         return keyAgreement.generateSecret()
     }
