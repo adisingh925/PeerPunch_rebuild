@@ -31,8 +31,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isShrinkResources = true
+            isMinifyEnabled = true
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -71,5 +71,5 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-perf-ktx")
     implementation("com.google.code.gson:gson:2.9.0")
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.69")
+    implementation("com.madgag.spongycastle:bcpg-jdk15on:1.58.0.0")
 }

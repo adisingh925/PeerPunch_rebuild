@@ -3,17 +3,11 @@ package app.adreal.android.peerpunch.encryption
 import android.security.keystore.KeyProperties
 import android.util.Log
 import app.adreal.android.peerpunch.model.EncryptedData
-import app.adreal.android.peerpunch.storage.SharedPreferences
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.bouncycastle.crypto.digests.SHA256Digest
-import org.bouncycastle.crypto.generators.HKDFBytesGenerator
-import org.bouncycastle.crypto.params.HKDFParameters
-import org.bouncycastle.jce.ECNamedCurveTable
-import org.bouncycastle.jce.interfaces.ECPrivateKey
-import org.bouncycastle.jce.interfaces.ECPublicKey
-import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.spongycastle.crypto.digests.SHA256Digest
+import org.spongycastle.crypto.generators.HKDFBytesGenerator
+import org.spongycastle.crypto.params.HKDFParameters
+import org.spongycastle.jce.ECNamedCurveTable
+import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.security.InvalidKeyException
 import java.security.KeyFactory
 import java.security.KeyPair
@@ -21,6 +15,8 @@ import java.security.KeyPairGenerator
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.security.Security
+import java.security.interfaces.ECPrivateKey
+import java.security.interfaces.ECPublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.util.Base64
@@ -29,7 +25,6 @@ import javax.crypto.KeyAgreement
 import javax.crypto.Mac
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
-import kotlin.coroutines.coroutineContext
 
 object Encryption {
 
@@ -63,7 +58,7 @@ object Encryption {
     fun addBouncyCastleProvider() {
         Log.d("Encryption", "Adding BouncyCastle provider")
         Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME)
-        Security.addProvider(BouncyCastleProvider())
+        Security.insertProviderAt(BouncyCastleProvider(), 1)
         generateECDHKeyPair()
     }
 
