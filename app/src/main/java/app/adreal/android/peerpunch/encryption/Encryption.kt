@@ -60,7 +60,10 @@ object Encryption {
             Log.d("Encryption", "Adding BouncyCastle provider")
             Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME)
             Security.insertProviderAt(BouncyCastleProvider(), 1)
-            generateECDHKeyPair()
+
+            if(Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) != null){
+                generateECDHKeyPair()
+            }
         }catch (e: Exception) {
             Log.d("Encryption", "Error adding BouncyCastle provider: ${e.message}")
         }

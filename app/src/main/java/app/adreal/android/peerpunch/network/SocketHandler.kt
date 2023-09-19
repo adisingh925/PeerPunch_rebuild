@@ -21,8 +21,8 @@ object SocketHandler {
     fun initSockets(context: Context) {
         try {
             initUDPClient()
-//            initTCPClient()
-//            initTCPServer()
+            initTCPClient()
+            initTCPServer()
             if (this::UDPSocket.isInitialized) {
                 UDPReceiver.startUDPReceiver(context)
                 UDPStun.sendUDPBindingRequest()
@@ -36,15 +36,15 @@ object SocketHandler {
         UDPSocket = DatagramSocket(Constants.getUdpPort())
     }
 
-//    private fun initTCPClient(){
-//        TCPSocket = Socket()
-//        TCPSocket.reuseAddress = true
-//        TCPSocket.bind(InetSocketAddress(Constants.getTcpPort()))
-//    }
-//
-//    private fun initTCPServer(){
-//        TCPServerSocket = ServerSocket()
-//        TCPServerSocket.reuseAddress = true
-//        TCPServerSocket.bind(InetSocketAddress(Constants.getTcpPort()))
-//    }
+    private fun initTCPClient(){
+        TCPSocket = Socket()
+        TCPSocket.reuseAddress = true
+        TCPSocket.bind(InetSocketAddress(Constants.getTcpPort()))
+    }
+
+    private fun initTCPServer(){
+        TCPServerSocket = ServerSocket()
+        TCPServerSocket.reuseAddress = true
+        TCPServerSocket.bind(InetSocketAddress(Constants.getTcpPort()))
+    }
 }
