@@ -5,12 +5,17 @@ object Constants {
     private const val CONNECTION_ESTABLISH_STRING = "#$%*#)$%*#)%#%#"
     private const val EXIT_CHAT = "EXIT_CHAT"
     private const val UDP_PORT = 50001
+    private const val TCP_PORT = 50002
     private const val LOOPBACK_ADDRESS = "127.0.0.1"
     private const val CONNECTING = 0
     private const val CONNECTED = 1
     private const val DISCONNECTED = 2
     private const val EXCHANGING_KEYS = 3
     private const val GENERATING_AES_KEY = 4
+
+    fun getTcpPort(): Int {
+        return TCP_PORT
+    }
 
     fun getGeneratingAesKey(): Int {
         return GENERATING_AES_KEY
