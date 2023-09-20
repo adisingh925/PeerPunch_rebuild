@@ -14,6 +14,7 @@ import java.net.InetSocketAddress
 object TCPClient {
 
     val isTCPConnected = MutableLiveData(false)
+
     fun startTCPClient() {
         CoroutineScope(Dispatchers.IO).launch {
             withContext(Dispatchers.IO) {
@@ -21,7 +22,7 @@ object TCPClient {
                     SocketHandler.TCPSocket.connect(
                         InetSocketAddress(
                             IPHandler.receiverIP.value,
-                            Constants.TCP_PORT
+                            IPHandler.TCPReceiverPortData.serverPort
                         )
                     )
 
@@ -53,19 +54,22 @@ object TCPClient {
         CoroutineScope(Dispatchers.IO).launch {
             val data = java.lang.StringBuilder()
 
-            while (true) {
-                // Wait for the STUN response
-                val response = ByteArray(256)
-                val byteRead = withContext(Dispatchers.IO) {
-                    SocketHandler.TCPInputStream.read(response)
-                }
+            while (SocketHandler.TCPSocket.isClosed.not()) {
+                try{
+                    val response = ByteArray(256)
+                    val byteRead = withContext(Dispatchers.IO) {
+                        SocketHandler.TCPInputStream.read(response)
+                    }
 
-                if (byteRead < response.size) {
-                    data.append(String(response, 0, byteRead))
-                    Log.d("TCPClient", "Received: $data")
-                    data.clear()
-                } else {
-                    data.append(String(response, 0, byteRead))
+                    if (byteRead < response.size) {
+                        data.append(String(response, 0, byteRead))
+                        Log.d("TCPClient", "Received: $data")
+                        data.clear()
+                    } else {
+                        data.append(String(response, 0, byteRead))
+                    }
+                }catch (e : Exception){
+                    Log.e("TCPClient", "Error in receiving data: ${e.message}")
                 }
             }
         }

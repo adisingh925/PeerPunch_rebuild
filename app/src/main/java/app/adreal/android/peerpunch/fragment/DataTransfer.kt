@@ -18,8 +18,10 @@ import app.adreal.android.peerpunch.R
 import app.adreal.android.peerpunch.adapter.ChatAdapter
 import app.adreal.android.peerpunch.databinding.FragmentDataTransferBinding
 import app.adreal.android.peerpunch.encryption.Encryption
+import app.adreal.android.peerpunch.model.CipherDataSend
 import app.adreal.android.peerpunch.model.Data
 import app.adreal.android.peerpunch.model.ECDHPublicSend
+import app.adreal.android.peerpunch.model.TCPCredentialsSend
 import app.adreal.android.peerpunch.network.ConnectionHandler
 import app.adreal.android.peerpunch.network.IPHandler
 import app.adreal.android.peerpunch.network.SocketHandler
@@ -30,6 +32,7 @@ import app.adreal.android.peerpunch.network.UDPSender
 import app.adreal.android.peerpunch.util.Constants
 import app.adreal.android.peerpunch.viewmodel.DataTransferViewModel
 import com.google.gson.Gson
+import java.util.Base64
 
 class DataTransfer : Fragment() {
 
@@ -75,7 +78,7 @@ class DataTransfer : Fragment() {
             resources.getString(R.color.darkNavigationBarColor)
         )
 
-        binding.toolbar.title = IPHandler.receiverIP.value + " : " + IPHandler.receiverPort.value
+        binding.toolbar.title = IPHandler.receiverIP.value
 
         binding.toolbar.setNavigationOnClickListener {
             Log.d("DataTransfer", "Toolbar Back pressed")
@@ -87,8 +90,6 @@ class DataTransfer : Fragment() {
                 if (it) {
                     Log.d("DataTransfer", "ECDH public key received")
                     ConnectionHandler.setConnectionStatus(Constants.getGeneratingAesKey())
-                    TCPServer.startTCPServer()
-                    TCPClient.startTCPClient()
                 }
             }
         }
@@ -99,7 +100,6 @@ class DataTransfer : Fragment() {
                 TCPClient.initTCPInputStream()
                 TCPClient.initTCPOutputStream()
                 TCPClient.startTCPReceiver()
-                TCPClient.sendTCPData("hello from TCP")
 
                 binding.send.backgroundTintList = ColorStateList.valueOf(
                     Color.parseColor(
@@ -115,6 +115,12 @@ class DataTransfer : Fragment() {
                     Log.d("DataTransfer", "AES Key Generated")
                     UDPReceiver.lastReceiveTime = (System.currentTimeMillis() - 3000)
                 }
+            }
+        }
+
+        UDPReceiver.getIsTCPCredentialsReceived().observe(viewLifecycleOwner){
+            if(it){
+                TCPClient.startTCPClient()
             }
         }
 
@@ -157,6 +163,13 @@ class DataTransfer : Fragment() {
                 Log.d("DataTransfer", "Keep alive timer: $it")
 
                 if (UDPReceiver.getIsAESKeyGenerated().value == true) {
+
+                    if((3600000L - it) > 5000 && (3600000L - it) < 10000){
+                        UDPSender.sendUDPMessage(Gson().toJson(
+                            TCPCredentialsSend(SocketHandler.TCPSocket.localPort, SocketHandler.TCPServerSocket.localPort)
+                        ), receiverIP, receiverPORT)
+                    }
+
                     UDPSender.sendUDPMessage(
                         Constants.getConnectionEstablishString(),
                         receiverIP,

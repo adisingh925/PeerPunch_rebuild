@@ -87,6 +87,9 @@ class Home : Fragment() {
                 UDPReceiver.setIsECDHReceived(false)
                 UDPReceiver.setIsAESKeyGenerated(false)
                 TCPClient.isTCPConnected.postValue(false)
+                UDPReceiver.setIsTCPCredentialsReceived(false)
+                IPHandler.TCPReceiverPortData.serverPort = 0
+                IPHandler.TCPReceiverPortData.clientPort = 0
                 UDPSender.timeLeft.postValue(-1)
                 UDPReceiver.lastReceiveTime = 0
                 Encryption.setSymmetricKey("")

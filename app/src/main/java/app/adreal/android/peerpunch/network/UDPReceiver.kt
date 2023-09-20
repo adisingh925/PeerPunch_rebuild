@@ -8,6 +8,7 @@ import app.adreal.android.peerpunch.encryption.Encryption
 import app.adreal.android.peerpunch.model.CipherDataSend
 import app.adreal.android.peerpunch.model.Data
 import app.adreal.android.peerpunch.model.ECDHPublicSend
+import app.adreal.android.peerpunch.model.TCPCredentialsSend
 import app.adreal.android.peerpunch.util.Constants
 import com.google.gson.Gson
 import de.javawi.jstun.attribute.MappedAddress
@@ -26,6 +27,7 @@ object UDPReceiver {
     private val hasPeerExited = MutableLiveData(false)
     private var isECDHReceived = MutableLiveData(false)
     private var isAESKeyGenerated = MutableLiveData(false)
+    private var isTCPCredentialsReceived = MutableLiveData(false)
     var lastReceiveTime: Long = 0
 
     fun getHasPeerExited(): MutableLiveData<Boolean> {
@@ -50,6 +52,14 @@ object UDPReceiver {
 
     fun setIsECDHReceived(value: Boolean) {
         isECDHReceived.postValue(value)
+    }
+
+    fun getIsTCPCredentialsReceived(): MutableLiveData<Boolean> {
+        return isTCPCredentialsReceived
+    }
+
+    fun setIsTCPCredentialsReceived(value: Boolean) {
+        isTCPCredentialsReceived.postValue(value)
     }
 
     fun startUDPReceiver(context: Context) {
@@ -90,43 +100,55 @@ object UDPReceiver {
                                 setIsAESKeyGenerated(true)
                             }
                         } else {
-                            if (!Encryption.isSymmetricKeyEmpty() && receivedData.contains("cipherText")) {
-                                val parsedCipherData = Gson().fromJson(receivedData, CipherDataSend::class.java)
+                            if (!Encryption.isSymmetricKeyEmpty()) {
+                                if(receivedData.contains("cipherText")){
+                                    val parsedCipherData = Gson().fromJson(receivedData, CipherDataSend::class.java)
 
-                                val message = Encryption.decryptUsingSymmetricEncryption(
-                                    Base64.getDecoder().decode(parsedCipherData.cipherText),
-                                    Base64.getDecoder().decode(parsedCipherData.iv)
-                                )
-
-                                if (Encryption.compareMessageAndHMAC(
-                                        message,
-                                        parsedCipherData.hash
+                                    val message = Encryption.decryptUsingSymmetricEncryption(
+                                        Base64.getDecoder().decode(parsedCipherData.cipherText),
+                                        Base64.getDecoder().decode(parsedCipherData.iv)
                                     )
-                                ) {
-                                    Log.d("UDPReceiver", "HMAC Successfully Matched")
-                                    if (message == Constants.getExitChatString()) {
-                                        if (hasPeerExited.value == false) {
-                                            Log.d("UDPReceiver", "Exit request received")
-                                            setHasPeerExited(true)
+
+                                    if (Encryption.compareMessageAndHMAC(
+                                            message,
+                                            parsedCipherData.hash
+                                        )
+                                    ) {
+                                        Log.d("UDPReceiver", "HMAC Successfully Matched")
+                                        if (message == Constants.getExitChatString()) {
+                                            if (hasPeerExited.value == false) {
+                                                Log.d("UDPReceiver", "Exit request received")
+                                                setHasPeerExited(true)
+                                            } else {
+                                                Log.d(
+                                                    "UDPReceiver",
+                                                    "Exit request received And Ignored"
+                                                )
+                                            }
+                                        } else if (message == Constants.getConnectionEstablishString()) {
+                                            if (hasPeerExited.value == false) {
+                                                lastReceiveTime = System.currentTimeMillis()
+                                                Log.d("UDPReceiver", "Received keep alive message")
+                                            } else {
+                                                Log.d(
+                                                    "UDPReceiver",
+                                                    "Received keep alive message And Ignored"
+                                                )
+                                            }
+                                        } else if (message.contains("clientPort") && message.contains("serverPort")) {
+                                            if(getIsTCPCredentialsReceived().value == false){
+                                                val parsedTCPData = Gson().fromJson(message, TCPCredentialsSend::class.java)
+                                                IPHandler.TCPReceiverPortData.clientPort = parsedTCPData.clientPort
+                                                IPHandler.TCPReceiverPortData.serverPort = parsedTCPData.serverPort
+                                                setIsTCPCredentialsReceived(true)
+                                                Log.d("UDPReceiver", "Received TCP credentials $parsedTCPData")
+                                            }else{
+                                                Log.d("UDPReceiver", "Received TCP credentials And Ignored")
+                                            }
                                         } else {
-                                            Log.d(
-                                                "UDPReceiver",
-                                                "Exit request received And Ignored"
-                                            )
+                                            Log.d("UDPReceiver", "Message received from peer")
+                                            Database.getDatabase(context).dao().addData(Data(System.currentTimeMillis(), message, 1))
                                         }
-                                    } else if (message == Constants.getConnectionEstablishString()) {
-                                        if (hasPeerExited.value == false) {
-                                            lastReceiveTime = System.currentTimeMillis()
-                                            Log.d("UDPReceiver", "Received keep alive message")
-                                        } else {
-                                            Log.d(
-                                                "UDPReceiver",
-                                                "Received keep alive message And Ignored"
-                                            )
-                                        }
-                                    } else {
-                                        Log.d("UDPReceiver", "Message received from peer")
-                                        Database.getDatabase(context).dao().addData(Data(System.currentTimeMillis(), message, 1))
                                     }
                                 }
                             } else {

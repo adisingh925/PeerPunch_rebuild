@@ -2,6 +2,7 @@ package app.adreal.android.peerpunch.network
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import app.adreal.android.peerpunch.model.TCPCredentialsSend
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.util.Collections
@@ -15,6 +16,7 @@ object IPHandler {
     val privateIP = MutableLiveData<String>()
     val receiverIP = MutableLiveData<String>()
     val receiverPort = MutableLiveData<Int>()
+    val TCPReceiverPortData : TCPCredentialsSend = TCPCredentialsSend(0, 0)
 
     fun getIPAddress(useIPv4: Boolean = true): String {
         try {
