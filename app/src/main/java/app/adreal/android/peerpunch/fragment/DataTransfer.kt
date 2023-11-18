@@ -163,7 +163,6 @@ class DataTransfer : Fragment() {
                 Log.d("DataTransfer", "Keep alive timer: $it")
 
                 if (UDPReceiver.getIsAESKeyGenerated().value == true) {
-
                     if((3600000L - it) > 5000 && (3600000L - it) < 10000){
                         UDPSender.sendUDPMessage(Gson().toJson(
                             TCPCredentialsSend(SocketHandler.TCPSocket.localPort, SocketHandler.TCPServerSocket.localPort)
