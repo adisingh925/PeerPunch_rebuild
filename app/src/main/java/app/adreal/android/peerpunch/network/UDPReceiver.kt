@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.DatagramPacket
+import java.net.DatagramSocket
 import java.util.Base64
 
 object UDPReceiver {
@@ -62,12 +63,12 @@ object UDPReceiver {
         isTCPCredentialsReceived.postValue(value)
     }
 
-    fun startUDPReceiver(context: Context) {
+    fun startUDPReceiver(context: Context, socket: DatagramSocket) {
         CoroutineScope(Dispatchers.IO).launch {
             while (true) {
                 val datagramPacket = DatagramPacket(ByteArray(512), 512)
                 withContext(Dispatchers.IO) {
-                    SocketHandler.UDPSocket.receive(datagramPacket)
+                    socket.receive(datagramPacket)
                 }
 
                 val messageType = ((datagramPacket.data[0].toInt() shl 8) or datagramPacket.data[1].toInt()).toShort()
@@ -92,7 +93,8 @@ object UDPReceiver {
                         if (isECDHReceived.value == false && receivedData.contains("publicKey")) {
                             try {
                                 isECDHReceived.postValue(true)
-                                val parsedData = Gson().fromJson(receivedData, ECDHPublicSend::class.java)
+                                val parsedData =
+                                    Gson().fromJson(receivedData, ECDHPublicSend::class.java)
                                 Encryption.generateECDHSecret(parsedData.publicKey)
                             } catch (e: Exception) {
                                 Log.d("UDPReceiver", "Error parsing ECDH packet: ${e.message}")
@@ -101,8 +103,9 @@ object UDPReceiver {
                             }
                         } else {
                             if (!Encryption.isSymmetricKeyEmpty()) {
-                                if(receivedData.contains("cipherText")){
-                                    val parsedCipherData = Gson().fromJson(receivedData, CipherDataSend::class.java)
+                                if (receivedData.contains("cipherText")) {
+                                    val parsedCipherData =
+                                        Gson().fromJson(receivedData, CipherDataSend::class.java)
 
                                     val message = Encryption.decryptUsingSymmetricEncryption(
                                         Base64.getDecoder().decode(parsedCipherData.cipherText),
@@ -135,19 +138,37 @@ object UDPReceiver {
                                                     "Received keep alive message And Ignored"
                                                 )
                                             }
-                                        } else if (message.contains("clientPort") && message.contains("serverPort")) {
-                                            if(getIsTCPCredentialsReceived().value == false){
-                                                val parsedTCPData = Gson().fromJson(message, TCPCredentialsSend::class.java)
+                                        } else if (message.contains("clientPort") && message.contains(
+                                                "serverPort"
+                                            )
+                                        ) {
+                                            if (getIsTCPCredentialsReceived().value == false) {
+                                                val parsedTCPData = Gson().fromJson(
+                                                    message,
+                                                    TCPCredentialsSend::class.java
+                                                )
                                                 IPHandler.TCPReceiverPortData.clientPort = parsedTCPData.clientPort
                                                 IPHandler.TCPReceiverPortData.serverPort = parsedTCPData.serverPort
                                                 setIsTCPCredentialsReceived(true)
-                                                Log.d("UDPReceiver", "Received TCP credentials $parsedTCPData")
-                                            }else{
-                                                Log.d("UDPReceiver", "Received TCP credentials And Ignored")
+                                                Log.d(
+                                                    "UDPReceiver",
+                                                    "Received TCP credentials $parsedTCPData"
+                                                )
+                                            } else {
+                                                Log.d(
+                                                    "UDPReceiver",
+                                                    "Received TCP credentials And Ignored"
+                                                )
                                             }
                                         } else {
                                             Log.d("UDPReceiver", "Message received from peer")
-                                            Database.getDatabase(context).dao().addData(Data(System.currentTimeMillis(), message, 1))
+                                            Database.getDatabase(context).dao().addData(
+                                                Data(
+                                                    System.currentTimeMillis(),
+                                                    message,
+                                                    1
+                                                )
+                                            )
                                         }
                                     }
                                 }

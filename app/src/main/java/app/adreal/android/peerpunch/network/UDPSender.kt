@@ -22,7 +22,7 @@ object UDPSender {
     val timeLeft = MutableLiveData<Long>()
 
     fun cancelKeepAliveTimer() {
-        if(this::keepAliveTimer.isInitialized){
+        if (this::keepAliveTimer.isInitialized) {
             keepAliveTimer.cancel()
         }
     }
@@ -42,7 +42,7 @@ object UDPSender {
 
     fun sendUDPMessage(message: String, ip: String, port: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            if(!Encryption.isSymmetricKeyEmpty()){
+            if (!Encryption.isSymmetricKeyEmpty()) {
                 val chunks = message.chunked(256)
 
                 for (chunk in chunks) {
@@ -66,7 +66,13 @@ object UDPSender {
 
                     withContext(Dispatchers.IO) {
                         try {
-                            SocketHandler.UDPSocket.send(datagramPacket)
+                            for (socket in SocketHandler.UDPSocket) {
+                                Log.d(
+                                    "UDPSender",
+                                    "Sent UDP message to ${socket.inetAddress}:${socket.port}"
+                                )
+                                socket.send(datagramPacket)
+                            }
                         } catch (e: Exception) {
                             Log.e("UDPSender", "Error sending UDP message: ${e.message}")
                         }
@@ -74,7 +80,7 @@ object UDPSender {
 
                     Log.d("Packet Size", byteArrayData.size.toString())
                 }
-            }else{
+            } else {
                 Log.d("UDPSender", "Symmetric key is empty")
             }
         }
@@ -92,7 +98,13 @@ object UDPSender {
             )
             withContext(Dispatchers.IO) {
                 try {
-                    SocketHandler.UDPSocket.send(datagramPacket)
+                    for (socket in SocketHandler.UDPSocket) {
+                        Log.d(
+                            "UDPSender",
+                            "Sent UDP message to ${socket.inetAddress}:${socket.port}"
+                        )
+                        socket.send(datagramPacket)
+                    }
                 } catch (e: Exception) {
                     Log.e("UDPSender", "Error sending STUN request: ${e.message}")
                 }

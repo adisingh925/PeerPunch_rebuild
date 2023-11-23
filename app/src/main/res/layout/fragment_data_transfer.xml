@@ -88,4 +88,16 @@
         app:layout_constraintLeft_toRightOf="@id/cardView"
         app:layout_constraintRight_toRightOf="parent" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:enabled="false"
+        android:src="@drawable/add"
+        app:fabCustomSize="50dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@id/send"
+        app:layout_constraintRight_toRightOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

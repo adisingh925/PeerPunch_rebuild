@@ -16,38 +16,41 @@ import java.net.Socket
 
 object SocketHandler {
 
-    lateinit var UDPSocket: DatagramSocket
-    lateinit var TCPSocket : Socket
-    lateinit var TCPServerSocket : ServerSocket
-    lateinit var TCPInputStream : DataInputStream
-    lateinit var TCPOutputStream : DataOutputStream
+    lateinit var UDPSocket: ArrayList<DatagramSocket>
+    lateinit var TCPSocket: Socket
+    lateinit var TCPServerSocket: ServerSocket
+    lateinit var TCPInputStream: DataInputStream
+    lateinit var TCPOutputStream: DataOutputStream
 
     fun initSockets(context: Context) {
         try {
-            initUDPClient()
+            initUDPClient(Constants.getUdpPort(), context)
             initTCPClient()
             initTCPServer()
-            if (this::UDPSocket.isInitialized) {
-                UDPReceiver.startUDPReceiver(context)
-                UDPStun.sendUDPBindingRequest()
-            }
         } catch (e: Exception) {
             Log.e("SocketHandler", "Error creating UDP socket: ${e.message}")
         }
     }
 
-    private fun initUDPClient(){
-        UDPSocket = DatagramSocket(Constants.getUdpPort())
+    private fun initUDPClient(port: Int, context: Context) {
+        if (!this::UDPSocket.isInitialized) {
+            UDPSocket = ArrayList()
+        }
+
+        val socket = DatagramSocket(port)
+        UDPSocket.add(socket)
+        UDPReceiver.startUDPReceiver(context, socket)
+        UDPStun.sendUDPBindingRequest()
     }
 
-    private fun initTCPClient(){
+    private fun initTCPClient() {
         TCPSocket = Socket()
         TCPSocket.reuseAddress = true
         TCPSocket.bind(InetSocketAddress(Constants.getTcpPort()))
         Log.d("SocketHandler", "TCPSocket bound to port ${TCPSocket.localPort}")
     }
 
-    private fun initTCPServer(){
+    private fun initTCPServer() {
         TCPServerSocket = ServerSocket()
         TCPServerSocket.reuseAddress = true
         TCPServerSocket.bind(InetSocketAddress(Constants.getTcpPort()))
