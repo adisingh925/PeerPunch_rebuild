@@ -17,7 +17,6 @@ import app.adreal.android.peerpunch.network.IPHandler
 import app.adreal.android.peerpunch.network.TCPClient
 import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPSender
-import app.adreal.android.peerpunch.storage.SharedPreferences
 import app.adreal.android.peerpunch.util.Constants
 import app.adreal.android.peerpunch.viewmodel.HomeFragmentViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -82,7 +81,7 @@ class Home : Fragment() {
                 IPHandler.receiverIP.postValue(Constants.getLoopbackAddress())
             }
 
-            if(checkFailed == 0){
+            if (checkFailed == 0) {
                 UDPReceiver.setHasPeerExited(false)
                 UDPReceiver.setIsECDHReceived(false)
                 UDPReceiver.setIsAESKeyGenerated(false)
@@ -93,7 +92,7 @@ class Home : Fragment() {
                 UDPSender.timeLeft.postValue(-1)
                 UDPReceiver.lastReceiveTime = 0
                 Encryption.setSymmetricKey("")
-                Log.d("Navigating","Navigating from Home to DataTransfer")
+                Log.d("Navigating", "Navigating from Home to DataTransfer")
                 findNavController().navigate(R.id.action_home2_to_dataTransfer)
             }
         }
@@ -103,7 +102,7 @@ class Home : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        Log.d("Home","onStart")
+        Log.d("Home", "onStart")
         CoroutineScope(Dispatchers.IO).launch {
             Encryption.addBouncyCastleProvider()
         }.invokeOnCompletion {

@@ -67,11 +67,7 @@ object UDPSender {
                     withContext(Dispatchers.IO) {
                         try {
                             for (socket in SocketHandler.UDPSocket) {
-                                Log.d(
-                                    "UDPSender",
-                                    "Sent UDP message to ${socket.inetAddress}:${socket.port}"
-                                )
-                                socket.send(datagramPacket)
+                                socket.value?.send(datagramPacket)
                             }
                         } catch (e: Exception) {
                             Log.e("UDPSender", "Error sending UDP message: ${e.message}")
@@ -99,11 +95,7 @@ object UDPSender {
             withContext(Dispatchers.IO) {
                 try {
                     for (socket in SocketHandler.UDPSocket) {
-                        Log.d(
-                            "UDPSender",
-                            "Sent UDP message to ${socket.inetAddress}:${socket.port}"
-                        )
-                        socket.send(datagramPacket)
+                        socket.value?.send(datagramPacket)
                     }
                 } catch (e: Exception) {
                     Log.e("UDPSender", "Error sending STUN request: ${e.message}")

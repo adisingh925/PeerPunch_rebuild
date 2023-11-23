@@ -63,22 +63,25 @@ object UDPReceiver {
         isTCPCredentialsReceived.postValue(value)
     }
 
-    fun startUDPReceiver(context: Context, socket: DatagramSocket) {
+    fun startUDPReceiver(context: Context, port: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            while (true) {
+            while (SocketHandler.UDPSocket[port] != null) {
                 val datagramPacket = DatagramPacket(ByteArray(512), 512)
                 withContext(Dispatchers.IO) {
-                    socket.receive(datagramPacket)
+                    SocketHandler.UDPSocket[port]?.receive(datagramPacket)
                 }
 
-                val messageType = ((datagramPacket.data[0].toInt() shl 8) or datagramPacket.data[1].toInt()).toShort()
+                val messageType =
+                    ((datagramPacket.data[0].toInt() shl 8) or datagramPacket.data[1].toInt()).toShort()
 
                 if (messageType == 0x0101.toShort()) {
                     Log.d("UDPReceiver", "Received UDP binding response")
                     try {
-                        val receiveMH = MessageHeader(MessageHeaderInterface.MessageHeaderType.BindingRequest)
+                        val receiveMH =
+                            MessageHeader(MessageHeaderInterface.MessageHeaderType.BindingRequest)
                         receiveMH.parseAttributes(datagramPacket.data)
-                        val mappedAddress = receiveMH.getMessageAttribute(MessageAttributeInterface.MessageAttributeType.MappedAddress) as MappedAddress
+                        val mappedAddress =
+                            receiveMH.getMessageAttribute(MessageAttributeInterface.MessageAttributeType.MappedAddress) as MappedAddress
 
                         IPHandler.publicIP.postValue(mappedAddress.address.toString())
                         IPHandler.publicPort.postValue(mappedAddress.port)
@@ -87,15 +90,18 @@ object UDPReceiver {
                     }
                 } else {
                     try {
-                        val receivedData = String(datagramPacket.data, 0, datagramPacket.data.indexOf(0))
+                        val receivedData =
+                            String(datagramPacket.data, 0, datagramPacket.data.indexOf(0))
                         Log.d("UDPReceiver", "Received data: $receivedData")
 
                         if (isECDHReceived.value == false && receivedData.contains("publicKey")) {
                             try {
-                                isECDHReceived.postValue(true)
                                 val parsedData =
                                     Gson().fromJson(receivedData, ECDHPublicSend::class.java)
-                                Encryption.generateECDHSecret(parsedData.publicKey)
+                                if (parsedData.publicKey.isNotEmpty()) {
+                                    isECDHReceived.postValue(true)
+                                    Encryption.generateECDHSecret(parsedData.publicKey)
+                                }
                             } catch (e: Exception) {
                                 Log.d("UDPReceiver", "Error parsing ECDH packet: ${e.message}")
                             } finally {
@@ -147,8 +153,10 @@ object UDPReceiver {
                                                     message,
                                                     TCPCredentialsSend::class.java
                                                 )
-                                                IPHandler.TCPReceiverPortData.clientPort = parsedTCPData.clientPort
-                                                IPHandler.TCPReceiverPortData.serverPort = parsedTCPData.serverPort
+                                                IPHandler.TCPReceiverPortData.clientPort =
+                                                    parsedTCPData.clientPort
+                                                IPHandler.TCPReceiverPortData.serverPort =
+                                                    parsedTCPData.serverPort
                                                 setIsTCPCredentialsReceived(true)
                                                 Log.d(
                                                     "UDPReceiver",

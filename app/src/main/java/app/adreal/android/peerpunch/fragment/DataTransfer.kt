@@ -178,16 +178,16 @@ class DataTransfer : Fragment() {
                 Log.d("DataTransfer", "Keep alive timer: $it")
 
                 if (UDPReceiver.getIsAESKeyGenerated().value == true) {
-                    if ((3600000L - it) > 5000 && (3600000L - it) < 10000) {
-                        UDPSender.sendUDPMessage(
-                            Gson().toJson(
-                                TCPCredentialsSend(
-                                    SocketHandler.TCPSocket.localPort,
-                                    SocketHandler.TCPServerSocket.localPort
-                                )
-                            ), receiverIP, receiverPORT
-                        )
-                    }
+//                    if ((3600000L - it) > 5000 && (3600000L - it) < 10000) {
+//                        UDPSender.sendUDPMessage(
+//                            Gson().toJson(
+//                                TCPCredentialsSend(
+//                                    SocketHandler.TCPSocket.localPort,
+//                                    SocketHandler.TCPServerSocket.localPort
+//                                )
+//                            ), receiverIP, receiverPORT
+//                        )
+//                    }
 
                     UDPSender.sendUDPMessage(
                         Constants.getConnectionEstablishString(),
@@ -301,7 +301,25 @@ class DataTransfer : Fragment() {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
     }
 
+    private fun <K, V> getLastKeyAdded(map: HashMap<K, V>): K? {
+        var lastKey: K? = null
+
+        // Iterate through the keys of the HashMap
+        for (key in map.keys) {
+            lastKey = key // Update lastKey for each iteration
+        }
+
+        return lastKey
+    }
+
     private fun showAddDialog() {
+        val port = getLastKeyAdded(SocketHandler.UDPSocket) ?: Constants.getUdpPort()
+
+        SocketHandler.initUDPClient(
+            port + 1,
+            requireContext()
+        )
+
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.setContentView(addDialogBinding.root)
 

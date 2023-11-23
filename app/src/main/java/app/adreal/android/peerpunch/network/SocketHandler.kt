@@ -16,7 +16,7 @@ import java.net.Socket
 
 object SocketHandler {
 
-    lateinit var UDPSocket: ArrayList<DatagramSocket>
+    var UDPSocket: HashMap<Int, DatagramSocket?> = HashMap()
     lateinit var TCPSocket: Socket
     lateinit var TCPServerSocket: ServerSocket
     lateinit var TCPInputStream: DataInputStream
@@ -32,14 +32,10 @@ object SocketHandler {
         }
     }
 
-    private fun initUDPClient(port: Int, context: Context) {
-        if (!this::UDPSocket.isInitialized) {
-            UDPSocket = ArrayList()
-        }
-
+    fun initUDPClient(port: Int, context: Context) {
         val socket = DatagramSocket(port)
-        UDPSocket.add(socket)
-        UDPReceiver.startUDPReceiver(context, socket)
+        UDPSocket[port] = socket
+        UDPReceiver.startUDPReceiver(context, port)
         UDPStun.sendUDPBindingRequest()
     }
 
