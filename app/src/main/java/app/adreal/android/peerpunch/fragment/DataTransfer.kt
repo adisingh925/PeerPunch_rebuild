@@ -1,13 +1,19 @@
 package app.adreal.android.peerpunch.fragment
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.widget.Button
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import app.adreal.android.peerpunch.MainActivity
 import app.adreal.android.peerpunch.R
 import app.adreal.android.peerpunch.adapter.ChatAdapter
+import app.adreal.android.peerpunch.databinding.AddDialogBinding
 import app.adreal.android.peerpunch.databinding.FragmentDataTransferBinding
 import app.adreal.android.peerpunch.encryption.Encryption
 import app.adreal.android.peerpunch.model.CipherDataSend
@@ -31,6 +38,7 @@ import app.adreal.android.peerpunch.network.UDPReceiver
 import app.adreal.android.peerpunch.network.UDPSender
 import app.adreal.android.peerpunch.util.Constants
 import app.adreal.android.peerpunch.viewmodel.DataTransferViewModel
+import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
 import java.util.Base64
 
@@ -64,12 +72,19 @@ class DataTransfer : Fragment() {
         IPHandler.receiverPort.value!!
     }
 
+    private val addDialogBinding by lazy {
+        AddDialogBinding.inflate(layoutInflater)
+    }
+
+    private lateinit var dialog: Dialog
+
     @SuppressLint("ResourceType")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
 
+        initDialog()
         initRecycler()
         UDPSender.configureKeepAliveTimer()
 
@@ -118,8 +133,8 @@ class DataTransfer : Fragment() {
             }
         }
 
-        UDPReceiver.getIsTCPCredentialsReceived().observe(viewLifecycleOwner){
-            if(it){
+        UDPReceiver.getIsTCPCredentialsReceived().observe(viewLifecycleOwner) {
+            if (it) {
                 TCPClient.startTCPClient()
             }
         }
@@ -159,14 +174,19 @@ class DataTransfer : Fragment() {
         }
 
         UDPSender.timeLeft.observe(viewLifecycleOwner) {
-            if(it != -1L){
+            if (it != -1L) {
                 Log.d("DataTransfer", "Keep alive timer: $it")
 
                 if (UDPReceiver.getIsAESKeyGenerated().value == true) {
-                    if((3600000L - it) > 5000 && (3600000L - it) < 10000){
-                        UDPSender.sendUDPMessage(Gson().toJson(
-                            TCPCredentialsSend(SocketHandler.TCPSocket.localPort, SocketHandler.TCPServerSocket.localPort)
-                        ), receiverIP, receiverPORT)
+                    if ((3600000L - it) > 5000 && (3600000L - it) < 10000) {
+                        UDPSender.sendUDPMessage(
+                            Gson().toJson(
+                                TCPCredentialsSend(
+                                    SocketHandler.TCPSocket.localPort,
+                                    SocketHandler.TCPServerSocket.localPort
+                                )
+                            ), receiverIP, receiverPORT
+                        )
                     }
 
                     UDPSender.sendUDPMessage(
@@ -256,6 +276,10 @@ class DataTransfer : Fragment() {
             }
         }
 
+        binding.add.setOnClickListener {
+            showAddDialog()
+        }
+
         dataTransferViewModel.getAllData().observe(viewLifecycleOwner) {
             adapter.setData(it)
             recyclerView.smoothScrollToPosition(adapter.itemCount)
@@ -272,6 +296,49 @@ class DataTransfer : Fragment() {
         return binding.root
     }
 
+    private fun initDialog() {
+        dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+    }
+
+    private fun showAddDialog() {
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setContentView(addDialogBinding.root)
+
+        addDialogBinding.connectAddDialog.setOnClickListener {
+            var checkFailed = 0
+            addDialogBinding.ipLayoutAddDialog.error = null
+
+            if (addDialogBinding.portInputAddDialog.text.toString().isNotBlank()) {
+                IPHandler.receiverPort.postValue(
+                    addDialogBinding.portInputAddDialog.text.toString().toInt()
+                )
+            } else {
+                IPHandler.receiverPort.postValue(Constants.getUdpPort())
+            }
+
+            if (addDialogBinding.ipInputAddDialog.text.toString().isNotBlank()) {
+                if (Patterns.IP_ADDRESS.matcher(addDialogBinding.ipInputAddDialog.text.toString())
+                        .matches()
+                ) {
+                    IPHandler.receiverIP.postValue(addDialogBinding.ipInputAddDialog.text.toString())
+                } else {
+                    addDialogBinding.ipLayoutAddDialog.error = "Invalid IP Address"
+                    checkFailed++
+                }
+            } else {
+                IPHandler.receiverIP.postValue(Constants.getLoopbackAddress())
+            }
+
+            if (checkFailed == 0) {
+                dialog.dismiss()
+            }
+        }
+
+        dialog.setCanceledOnTouchOutside(true)
+        dialog.show()
+    }
+
     private fun initRecycler() {
         recyclerView.adapter = adapter
         linearLayoutManager.stackFromEnd = true
@@ -286,7 +353,8 @@ class DataTransfer : Fragment() {
         if (UDPReceiver.lastReceiveTime == 0L) {
             ConnectionHandler.setConnectionStatus(Constants.getExchangingKeys())
             UDPSender.keepAliveTimer.start()
-            binding.send.backgroundTintList = ColorStateList.valueOf(Color.parseColor(resources.getString(R.color.senderChatBlue)))
+            binding.send.backgroundTintList =
+                ColorStateList.valueOf(Color.parseColor(resources.getString(R.color.senderChatBlue)))
         }
     }
 }
