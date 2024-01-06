@@ -32,7 +32,10 @@ Simple download the apk from the packages I have published.
 
 ### Usage Example
 
-
+<img src="https://github.com/adisingh925/PeerPunch_rebuild/assets/68631004/bb6dc2ea-5e16-453c-a8b9-17a3f852e0f1" width="200">
+<img src="https://github.com/adisingh925/PeerPunch_rebuild/assets/68631004/dcdaa2af-f385-425b-a573-983c73041a6a" width="200">
+<img src="https://github.com/adisingh925/PeerPunch_rebuild/assets/68631004/3007a582-ede8-4743-ab43-d757ed29135e" width="200">
+<img src="https://github.com/adisingh925/PeerPunch_rebuild/assets/68631004/7d5c81ff-e923-4a1f-a933-47e14127a71f" width="200">
 
 ## Contributions and Support
 
@@ -48,7 +51,7 @@ We extend our gratitude to the developers and communities behind the technologie
 
 ## Contact Us
 
-For any queries, suggestions, or feedback, please reach out to us at [Your Contact Information]. We are committed to providing support and fostering a thriving community around PeerPunch.
+For any queries, suggestions, or feedback, please reach out to us at adisingh925@gmail.com. We are committed to providing support and fostering a thriving community around PeerPunch.
 
 Thank you for exploring PeerPunch!
 
